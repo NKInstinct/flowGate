@@ -1,22 +1,19 @@
 Package: gater
 Type: Package
-Title: Visual, interactive cytometry gating in R
-Version: 0.1.0
+Title: Interactive Cytometry Gating in R
+Version: 0.0.0.9000
 Authors@R: as.person(c(
-
-))
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: Visual, interactive gating of flow cytometry data using R.
-    Adds a single function, GateInteractive, which will allow you to draw
-    rectangle, polygon, 1-d span, and 2-d quadrant gates using an interactive
-    GUI. Designed to be used with the FlowWorkspace package.
-License: What license is it under?
+    "Andrew Wight <AndrewE_Wight@dfci.harvard.edu> [aut, cre]",
+    "Harvey Cantor <Harvey_Cantor@dfci.harvard.edu> [aut, ldr]"
+  ))
+Description: A single-function package allowing you to interactively
+    draw rectangle, polygon, 1-d span, and 2-d quadrant gates on
+    flow cytometry data in R
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-
 Imports:
-    shiny (>= 1.5.0)
-    
+    shiny (>= 1.5.0),
+    BiocManager (>= 1.30.10)
 Depends:
     flowWorkspace (>= 4.0.6)
-    
