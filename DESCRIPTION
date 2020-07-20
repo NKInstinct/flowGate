@@ -17,3 +17,8 @@ Imports:
     BiocManager (>= 1.30.10)
 Depends:
     flowWorkspace (>= 4.0.6)
+RoxygenNote: 7.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

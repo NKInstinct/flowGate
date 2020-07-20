@@ -1,0 +1,130 @@
+---
+title: "Gater"
+subtitle: "Enabling conventional cytometry analysis in R"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Gater}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+The ability to analyze and manipulate flow cytometry data (in the form of .FCS
+files) from within the R statistical programming language is becoming
+increasingly important. With improved throughput of flow cytometers through
+readily available auto-sampling machines and increased complexity enabled by
+multi-parameter and spectral analyzers, there is a growing need for programmatic
+and open-source solutions that enable efficient and reproducible cytometry
+analysis. Moreover, recent advances in flow cytometry, such as the ability to
+integrate machine learning and conventional cytometry to allow a 16-colour
+cytometer to analyze hundreds of markers in a single sample (CITE InfinityFlow),
+require familiarity with analyzing cytometry data in R. Finally, analyzing
+cytometry data in a coding language enables more transparent and repeatable
+science, since it is possible to directly comment on each step of the analysis
+strategy and to employ version control software to track any changes to the
+analysis over time.
+
+There are currently two general strategies for working with cytometry data in R.
+The first is to perform the entire analysis from within the R coding
+environment. There are some excellent packages and standards that allow the
+import of FCS files, compensation, data transformation, plotting, and exporting
+summary statistics. However, manual gating of flow cytometry data remains
+cumbersome and difficult to perform accurately. Of note, there are packages
+available now that enable automatic, data-driven gates that avoid these problems
+(CITE), but are themselves complex to properly prepare and validate the
+automatic gates. Moreover, these data-driven gates represent an unfamiliar
+workflow for the majority of cytometerists that are accustomed to GUI-based
+analyses such as those enabled by FlowJo, Kaluza, and other cytometry analysis
+software.
+
+The second strategy is to first perform compensation, transformation, and gating
+in FlowJo, and then import the resulting workspace object into R using the
+flowWorkspace package. This has the advantage of allowing cytometerists to work
+in a familiar way while still enabling the use of cutting-edge cytometry tools
+such as InfinityFlow. However, this approach lacks all of the other benefits
+that an R-native cytometry package would allow. In particular, it is dependent
+on expensive, closed-source software and does not allow for easy commenting and
+version control. Nevertheless, manual gating remains sufficiently difficult in R
+as to make this the method used in the InfinityFlow manuscript.
+
+Gater was developed to fill in this missing ability for manual, GUI-based gating
+in R, finally enabling a familiar cytometry analysis pipeline completely within
+R. This vignette will demonstrate the Gater function within the context of a
+complete cytometry analysis pipeline and is geared toward a researcher who has
+never used R for flow cytometry analysis at all.
+
+# Setting up Gater
+
+Prior to using Gater, it must first be installed on your system. Because it is
+in active development and not yet submitted to a repository, you will need to
+install it directly from GitHub using the following code. Installing packages
+from GitHub is slightly more complex than installing normal R packages, so if
+you've never done it before, here are some steps to follow:
+
+* if you are using a Windows operating system, make sure that you have Rtools
+installed (url)
+* make sure that you have a GitHub account and that you are logged in to it
+* generate a personal access token to authenticate yourself to GitHub, and set
+it up in R. This can be done directly from R using the following code:
+
+```{r generate PAT, eval = FALSE}
+if(!requireNamespace("usethis", quietly = TRUE)){
+  install.packages("usethis")
+}
+
+usethis::browse_github_pat() 
+# If you are using github enterprise, specify host = <"url"> in the parentheses
+
+# This will take you to your github account where you can generate a PAT. Make
+# sure that you have "repo" selected as one of the permissions. Then, when you
+# click "generate token", make sure you copy the resulting string of text to
+# your clipboard, since it won't be displayed again.
+
+# Once you have the PAT copied to your clipboard, type
+
+usethis::edit_r_environ()
+
+# This will open your .Renviron file. On a new line, add:
+# GITHUB_PAT=<paste the PAT string here>
+
+# Make sure the .Renviron still ends with a newline after adding this, then save it.
+# Restart R for your PAT to take effect.
+```
+
+Once you have your personal access token generated, you will be able to install
+gater using the install_github() function from devtools. The following code
+makes sure you have the devtools package installed (and installs it if you
+don't), and then installs and attaches gater (and flowWorkspace, which is
+required for any of gater to work properly).
+
+```{r}
+# install devtools if you don't already have it
+if(!requireNamespace("devtools", quietly = TRUE)){
+  install.packages("devtools")
+}
+
+devtools::install_github("anw134/gater", host = "code.harvard.edu/api/v3")
+
+library(gater)
+```
+
+# Assemble a FlowSet from seperate .FCS files
+
+The example flow data used in this package comes from the GvHD data included in
+flowCore, the base package for all flow cytometry data analysis in R. The GvHD
+data that comes with flowCore is already stored in a FlowSet, so for this
+example, you can find the first three samples from GvHD bundled with gater as
+individual .FCS files, which we will turn into a FlowSet here.
+
+```{r}
+raw_fcs_files <- system.file("inst", "extdata", package = "gater")
+```
+

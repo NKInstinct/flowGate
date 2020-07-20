@@ -2,30 +2,103 @@
 # Shamelessly stolen from the Trappnel lab's Monocle 3 "Select cells" and adapted
 # for flow cytometry
 
-#' Choose cells interactively to gate a gate set
+#' Interactive Manual Gating
 #'
-#' @param gs gate-set object to gate on
-#' @param filterId Name of the new gate
-#' @param sample which gating hierarchy in the gate-set do you want to preview?
-#' @param dims a list of length 2 giving the abscissa and ordonate
-#' @param subset name of parent gate for drawing
-#' @param bins The level of granularity needed for the gate
-#' @param coords passes to coord_cartesian.
-#' @param regate Boolean - should the gate first be deleted from the gs to allow it to be redrawn?
-#' @param overlayGates Should I draw other gates on this plot, to help with adding multiples?
+#' \code{gs_gate_interactive} opens a new graphical window where you can draw
+#' rectangle, polygon, 1-D span, or 2-D quadrant gates that will be applied to
+#' an entire GateSet (see
+#' \href{https://www.bioconductor.org/packages/release/bioc/html/flowWorkspace.html}{flowWorkspace
+#' on Bioconductor} for complete information about GateSets).
 #'
-#' @return the gs with a new gate drawn and recalculated on all gh within the set.
+#' @param gs The GateSet that will be gated on.
+#' @param filterId String that gives the name of the new gate. Must be unique
+#'   (can specify parent gates to aid in this).
+#' @param sample Numeric specifying which of the GatingHierarchy objects (i.e.
+#'   which FCS file/flow sample) that make up the GateSet do you want to use to
+#'   draw the gate? Note that the gate you draw will be applied to all
+#'   GatingHierarchy objects in the GateSet. Defaults to the first
+#'   GatingHierarchy object in the GateSet.
+#' @param dims A list of strings, length-1 or length-2, that specifies the x-
+#'   and y- parameters that you will be gating on. Giving a length-1 list will
+#'   result in a histogram, while a length-2 list will result in a dot-plot.
+#'   Giving a length-3 or longer list will result in only the first two
+#'   dimensions being used, and will generate a warning to say as much. Defaults
+#'   to forward scatter ("FSC-A") and side scatter ("SSC-A").
+#' @param subset String that gives the name of the parent gate that you want to
+#'   sample from. For example, if you wanted to gate all live cells out of a
+#'   previously drawn "lymphocytes" gate, you would specify "lymphocytes" here.
+#'   Defaults to "root" (ungated).
+#' @param bins Numeric specifying the level of granularity needed for the gate.
+#'   Higher numbers result in smaller dots. Defaults to 256, and is ignored for
+#'   histograms.
+#' @param coords A length-2 list of minimum and maximum coordinates that passes
+#'   to coord_cartesian, in the format \code{list(x = c(0, 10), y = c(0, 10))}.
+#'   Defaults to \code{NULL} (data-driven coordinate system).
+#' @param regate A boolean specifying whether all gates with a name matching
+#'   \code{filterId} should first be deleted before being re-drawn. Attempting
+#'   to draw a gate with a non-unique \code{filterId} without specifying
+#'   \code{regate = TRUE} will result in an error. Defaults to \code{FALSE}
+#' @param overlayGates List of strings giving the \code{filterId}s of other
+#'   gates to draw on the example plot when gating. Useful for drawing multiple
+#'   gates on the same population (for example, after specifying a marker-low
+#'   population, you can overlay the marker-low gate to aid in drawing a
+#'   marker-high gate). Defaults to \code{NULL} (no overlaid gates).
+#'
+#' @examples
+#'
+#' \dontrun{
+#' gs_gate_interactive(gs,
+#'                     filterId = "Lymphocytes")
+#'
+#' # returns gs with the same "Lymphocytes" gate on FSC-A and SSC-A applied to
+#' # the root node (all events) of each sample in the GateSet.
+#'
+#' gs_gate_interactive(gs,
+#'                     filterId = "Live cells",
+#'                     dims = "Viability",
+#'                     subset = "Lymphocytes")
+#'
+#' # returns gs with a "Live cells" gate drawn on all cells included in the
+#' # parent "Lymphocytes" gate. This gate would be based on a histogram of a
+#' # marker called Viability, using the first GatingHierarchy sample as an
+#' # example.
+#'
+#' gs_gate_interactive(gs,
+#'                     filterId = "Live cells",
+#'                     dims = list("Viability", "SSC-A"),
+#'                     subset = "Lymphocytes",
+#'                     regate = TRUE)
+#'
+#' # first deletes the "Live cells" gate drawn above, then adds a new "Live
+#' # cells" gate to the set, this time based on a dot plot of Viability by
+#' # side-scatter.
+#'
+#' gs_gate_interactive(gs,
+#'                     filterId = "Dead cells",
+#'                     dims = list("Viability", "SSC-A"),
+#'                     subset = "Lymphocytes",
+#'                     overlayGates = "Live cells")
+#'
+#' # returns gs with a "Dead cells" gate drawn on the same example graph that
+#' # was used to draw the "Live cells" gate above. Overlays the "Live cells" gate
+#' # on top of this graph to aid in drawing the "Dead cells" gate.
+#'
+#' }
+#'
+#' @return The GateSet object with a new gating applied and named as specified
+#'   in filterId. Also recalculates the GateSet.
+#'
 #' @export
 #'
-GateInteractive <- function(gs,
-                            filterId,
-                            sample = 1,
-                            dims = list("FSC-A", "SSC-A"),
-                            subset = "root",
-                            bins = 256,
-                            coords = NULL, #might change this back, we'll see
-                            regate = FALSE,
-                            overlayGates = NULL){
+gs_gate_interactive <- function(gs,
+                                filterId,
+                                sample = 1,
+                                dims = list("FSC-A", "SSC-A"),
+                                subset = "root",
+                                bins = 256,
+                                coords = NULL, #might change this back, we'll see
+                                regate = FALSE,
+                                overlayGates = NULL){
 
   #Delete gate if regating-----------------------
   if(regate == TRUE){
@@ -37,9 +110,8 @@ GateInteractive <- function(gs,
 
 
   #generate the plot using the input params------
-  #Add an assert.that tag if they try to pass 3+ dims - can't handle 3d graphs yet :P
   if(length(dims) > 2){
-    warning("GateInteractive can only handle one or two dims.
+    warning("gs_gate_interactive can only handle one or two dims.
             The first two dims will be used, the others discarded.")
   }
 
