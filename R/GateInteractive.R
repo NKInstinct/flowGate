@@ -88,6 +88,12 @@
 #' @return The GateSet object with a new gating applied and named as specified
 #'   in filterId. Also recalculates the GateSet.
 #'
+#' @import flowWorkspace
+#' @import ggcyto
+#' @importFrom magrittr %>%
+#' @importFrom ggplot2 aes geom_density scale_x_continuous scale_y_continuous
+#' @importFrom ggplot2 theme element_blank coord_cartesian geom_hex
+#'
 #' @export
 #'
 gs_gate_interactive <- function(gs,
@@ -115,8 +121,9 @@ gs_gate_interactive <- function(gs,
             The first two dims will be used, the others discarded.")
   }
 
+
   if(length(dims) == 1){
-    gg <- ggcyto(sample.gs, aes(!!dims[[1]]), subset = subset) +
+    gg <- ggcyto::ggcyto(sample.gs, aes(!!dims[[1]]), subset = subset) +
       geom_density() +
       #theme_pubr() + would like to do this without requiring ggpubr as well, just update theme() below
       scale_x_continuous(expand = c(0,0)) +
@@ -132,7 +139,7 @@ gs_gate_interactive <- function(gs,
       gg <- gg + coord_cartesian(xlim = coords[[1]])
     }
   } else {
-    gg <- ggcyto(sample.gs, aes(!!dims[[1]], !!dims[[2]]), subset = subset) +
+    gg <- ggcyto::ggcyto(sample.gs, aes(!!dims[[1]], !!dims[[2]]), subset = subset) +
       geom_hex(bins = bins) +
       #theme_pubr() +
       scale_x_continuous(expand = c(0,0)) +
@@ -154,7 +161,7 @@ gs_gate_interactive <- function(gs,
     gg <- gg + geom_gate(overlayGates)
   }
 
-  gg %<>% as.ggplot()
+  gg <- as.ggplot(gg)
 
   #Setup the UI----------------------------------
   ui <- shiny::fluidPage(
@@ -233,7 +240,7 @@ gs_gate_interactive <- function(gs,
         #Polygon Gate
         res <- data.frame("x" = input$plot1_click$x,
                           "y" = input$plot1_click$y)
-        vals$coords <- bind_rows(vals$coords, res)
+        vals$coords <- dplyr::bind_rows(vals$coords, res)
       } else if(input$gateType == "quadGate"){
         #Quad Gate
         vals$coords <- list("X" = input$plot1_click$x,
@@ -259,7 +266,7 @@ gs_gate_interactive <- function(gs,
       if(is.data.frame(vals$coords)){
         #Get the channel name instead of the short name
         names(vals$coords) <- c(names(gg[[1]])[[3]], names(gg[[1]])[[4]])
-        vals$coords %<>%
+        vals$coords <- vals$coords %>%
           as.matrix %>%
           flowCore::polygonGate(filterId = filterId)
 
@@ -267,7 +274,7 @@ gs_gate_interactive <- function(gs,
         #be a span (only single-dimension gate)
       } else if(length(vals$coords) == 1){
         names(vals$coords) <- c(names(gg[[1]])[[3]])
-        vals$coords %<>%
+        vals$coords <- vals$coords %>%
           flowCore::rectangleGate(filterId = filterId)
 
         #If it isn't a span, check the length of the first element of the list. If
@@ -275,7 +282,7 @@ gs_gate_interactive <- function(gs,
         #a single, two-dimensional point)
       }  else if(length(vals$coords[[1]]) == 1){
         names(vals$coords) <- c(names(gg[[1]])[[3]], names(gg[[1]])[[4]])
-        vals$coords %<>%
+        vals$coords <- vals$coords %>%
           flowCore::quadGate(filterId = filterId)
 
         #At this point, it should be a rectangle, but just in case we're going to
@@ -283,7 +290,7 @@ gs_gate_interactive <- function(gs,
         #because the thing that got passed doesn't fit any gating scheme we know.
       } else if(length(vals$coords[[1]]) == 2){
         names(vals$coords) <- c(names(gg[[1]])[[3]], names(gg[[1]])[[4]])
-        vals$coords %<>%
+        vals$coords <- vals$coords %>%
           flowCore::rectangleGate(filterId = filterId)
       } else {
         stop("What did you draw? I'm sure it was pretty but it wasn't anything I can recognize as a gate")

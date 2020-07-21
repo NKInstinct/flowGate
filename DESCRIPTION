@@ -8,17 +8,26 @@ Authors@R: as.person(c(
   ))
 Description: A single-function package allowing you to interactively
     draw rectangle, polygon, 1-d span, and 2-d quadrant gates on
-    flow cytometry data in R
+    flow cytometry data in R.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
     shiny (>= 1.5.0),
-    BiocManager (>= 1.30.10)
+    BiocManager (>= 1.30.10),
+    magrittr (>= 1.5),
+    flowCore (>= 2.0.1),
+    dplyr (>= 1.0.0),
+    ggplot2 (>= 3.3.2)
 Depends:
-    flowWorkspace (>= 4.0.6)
+    flowWorkspace (>= 4.0.6),
+    ggcyto (>= 1.16.0)
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    stringr,
+    tidyverse,
+    cowplot,
+    magick
 VignetteBuilder: knitr
