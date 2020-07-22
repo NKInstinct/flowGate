@@ -31,3 +31,7 @@ Suggests:
     cowplot,
     magick
 VignetteBuilder: knitr
+biocViews:
+    Software,
+    WorkflowStep,
+    FlowCytometry

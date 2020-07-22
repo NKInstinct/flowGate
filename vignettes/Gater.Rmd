@@ -95,55 +95,46 @@ never used R for flow cytometry analysis at all.
 # Setting up gater
 
 Prior to using gater, it must first be installed on your system. Because it is
-in active development and not yet submitted to a repository, you will need to
-install it directly from GitHub using the following code. Installing packages
-from GitHub is slightly more complex than installing normal R packages, so if
-you've never done it before, here are some steps to follow:
+in active development and not yet submitted to BioConductor, you will need to
+install it directly from GitHub. Installing packages from GitHub is slightly
+more complex than installing normal R packages, so if you've never done it
+before, here are some steps to follow:
 
 
-* First, gater uses the Shiny package to make interactive gating possible, and
-so works very well from inside the RStudio IDE. You don't strictly need to use
-RStudio to make this work, but this vignette is assuming that you are, and if
-you don't have a reason not to use RStudio, I recommend that you do at least
-while you are working through this vignette. You can download RStudio for free
-from (https://rstudio.com/)
-* If you are using a Windows operating system, make sure that you have Rtools
-installed (https://cran.r-project.org/bin/windows/Rtools/)
-* Make sure that you have a GitHub account and that you are logged in to it
-* Generate a personal access token to authenticate yourself to GitHub, and set
-it up in R. This can be done directly from R using the following code:
+1. Install RStudio (https://rstudio.com). Gater uses the Shiny package to make
+interactive gating possible, which tends to work best from inside the RStudio
+IDE. You don't strictly need to use RStudio to make this work, but this vignette
+is assuming that you are, and if you don't have a reason not to use RStudio, I
+recommend that you do at least while you are working through this vignette. 
+2. If you are using a Windows operating system, install Rtools
+(https://cran.r-project.org/bin/windows/Rtools/)
+3. Make sure that you have a GitHub account (http://github.com)
+4. Install BioConductor dependencies (see code below). Once gater is submitted
+to BioConductor, this step won't be necessary, but for the mean time, the code
+we will use to install gater from github doesn't know how to automatically
+install dependencies that are hosted on BioConductor, so we need to do it
+ourselves first. Run the following code on your computer before proceeding:
 
-```{r generate PAT, eval = FALSE}
-if(!requireNamespace("usethis", quietly = TRUE)){
-  install.packages("usethis")
+```{r eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE)){
+  install.packages("BiocManager")
 }
 
-usethis::browse_github_pat() 
-# If you are using github enterprise, specify host = <"url"> in the parentheses
+if(!requireNamespace("flowCore", quietly = TRUE)){
+  BiocManager::install("flowCore")
+}
 
-# This will take you to your github account where you can generate a PAT. Make
-# sure that you have "repo" selected as one of the permissions. Then, when you
-# click "generate token", make sure you copy the resulting string of text to
-# your clipboard, since it won't be displayed again.
+if(!requireNamespace("flowWorkspace", quietly = TRUE)){
+  BiocManager::install("flowWorkspace")
+}
 
-# Once you have the PAT copied to your clipboard, type
-
-usethis::edit_r_environ()
-
-# This will open your .Renviron file. On a new line, add:
-# GITHUB_PAT=<paste the PAT string here>
-
-# Make sure the .Renviron still ends with a newline after adding this, then save it.
-# Restart R for your PAT to take effect.
+if(!requireNamespace("ggcyto", quietly = TRUE)){
+  BiocManager::install("ggcyto")
+}
 ```
 
-Once you have your personal access token generated, you will be able to install
-gater using the install_github() function from devtools. The following code
-makes sure you have the devtools package installed (and installs it if you
-don't), and then installs and attaches gater (and the ggcyto and flowWorkspace
-packages, which are required for any of gater to work properly. Essentially,
-gater is a bridge between these two packages and so doesn't do anything without
-both of them).
+
+Once you have the BioConductor dependencies installed, you should be able to run the following code to download and install gater.
 
 ```{r eval = FALSE}
 # install devtools if you don't already have it
@@ -151,7 +142,7 @@ if(!requireNamespace("devtools", quietly = TRUE)){
   install.packages("devtools")
 }
 
-devtools::install_github("anw134/gater", host = "code.harvard.edu/api/v3")
+devtools::install_github("NKInstinct/gater")
 ```
 # Preparing your cytometry data
 
