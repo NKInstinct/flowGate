@@ -2,7 +2,7 @@ Gater
 ================
 Andrew Wight
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto 0 auto auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto 0 auto auto;" />
 
 # Abstract
 
@@ -463,7 +463,7 @@ gs_gate_interactive(gs,
 When you first run the gs\_gate\_interactive command, a window like this
 should appear
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 The sidebar on the left lets you decide what kind of gate you want to
 draw, and the main window in the middle shows a plot of your data that
 you can interact with.
@@ -476,7 +476,7 @@ way tends to cause errors.
 To select your leukocytes, switch the gating mode over to polygon by
 clicking on the polygon radio button
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 Once you have clicked on the kind of gate you want, you can proceed to
 draw it. Polygon gates (like this one) are drawn by clicking multiple
 times to trace a polygon. Other gates are drawn differently (Rectangle
@@ -490,7 +490,7 @@ this now).
 Go ahead and draw a polygon gate on your data. Again, remember that you
 won’t see your polygon while you draw it.
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
 
 If you think you’ve mis-clicked and want to start over, just hit the
 “Clear” button on the top left and then start drawing your polygon
@@ -506,7 +506,7 @@ on “done” first, it’s a good idea to make sure that the shiny app isn’t
 still running in the background. Have a look at your R Console window
 and see if there is a stop sign in the upper-right corner.
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 If that button is there, it means that the shiny app is still running
 and you should stop it before proceeding. Trying to do anything else in
 R while the shiny app runs in the background can cause all kinds of
@@ -541,7 +541,7 @@ autoplot(gs[[1]], gate = "Leukocytes")
 #> Coordinate system already present. Adding new coordinate system, which will replace the existing one.
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 
 The important thing here is that you have a gate drawn on a hex plot
 with a percentage in the middle of it—don’t worry if it doesn’t look
@@ -582,10 +582,10 @@ look at (the “parent gate”, in this case Leukocytes). Running
 `gs_gate_interactive()` with these arguments will draw a histogram
 instead of a dot plot, but otherwise the window will look as before.
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
 Switch the gating mode over to “Span”
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-20-1.png" style="display: block; margin: auto;" />
 
 Then draw your gate. For span and rectangle gates, you draw them by
 clicking and dragging a rectangle on the plot. In fact, the only
@@ -596,7 +596,7 @@ don’t care about the vertical dimensions of the rectangle. This can be
 useful for drawing the gate exactly where you want it, since you can use
 the vertical dimensions to help line it up with your histogram peaks.
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-21-1.png" style="display: block; margin: auto;" />
 
 As before, when you are happy with the gate, click Done to close the
 window and apply the gate. Unlike with polygon and quadrant gates, you
@@ -620,7 +620,7 @@ ggcyto(gs[[1]], aes("CD45")) +
   geom_stats()
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-22-1.png" style="display: block; margin: auto;" />
 The idea behind the grammar of graphics is that you can draw any graph
 by first specifying the data the graph comes from, and then specifying
 the kind of image you want to make from those data. In this case, the
@@ -706,7 +706,7 @@ ggcyto(gs[[1]], aes("CD33", "CD15")) +
   geom_stats()
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-27-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-27-1.png" style="display: block; margin: auto;" />
 If you are comfortable with the stringr package, you can also specify
 this a little more efficiently by first selecting all of the population
 paths that contain the word “CD33” and then passing this list to
@@ -721,7 +721,7 @@ ggcyto(gs[[1]], aes("CD33", "CD15")) +
   geom_stats()
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-28-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-28-1.png" style="display: block; margin: auto;" />
 Again, this isn’t that important, so if stringr is unfamiliar to you,
 don’t worry about it yet and come back to this idea when you’re more
 comfortable with working with strings.
@@ -799,7 +799,7 @@ ggcyto(gs, aes("CD33", "CD15")) +
   geom_stats()
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-30-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-30-1.png" style="display: block; margin: auto;" />
 
 These graphs do a good job conveying the information we want to show,
 but they look a little primitive compared to graphs that FlowJo
@@ -817,7 +817,7 @@ ggcyto(gs, aes("CD33", "CD15")) +
   geom_stats(digits = 1)
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-31-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-31-1.png" style="display: block; margin: auto;" />
 
 That’s starting to look much classier, while still clearly presenting
 the data. The last thing I like to do with presentation plots is to
@@ -837,7 +837,7 @@ ggcyto(gs, aes("CD33", "CD15")) +
   theme_minimal()
 ```
 
-<img src="C:\Documents and Settings\aew48\Desktop\README_files/figure-gfm/unnamed-chunk-32-1.png" style="display: block; margin: auto;" />
+<img src="C:/Users/aew48/Desktop/README_files/figure-gfm/unnamed-chunk-32-1.png" style="display: block; margin: auto;" />
 
 ## Retrieving summary statistics
 
