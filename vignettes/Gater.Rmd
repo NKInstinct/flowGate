@@ -19,6 +19,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r echo = FALSE, fig.align = "right", fig.height = 1, fig.width = 1}
+cowplot::ggdraw() + cowplot::draw_image("gaterlogo.svg")
+```
+
 # Abstract
 
 It has been possible for several years now to store, analyze, graph, and
