@@ -2,7 +2,7 @@ Gater
 ================
 Andrew Wight
 
-<img src="README_files/figure-gfm/unnamed-chunk-2-1.png" style="display: block; margin: auto 0 auto auto;" />
+<img src="vignettes/gaterlogo.png" style="display: block; margin: auto 0 auto auto;" />
 
 # Abstract
 
