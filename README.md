@@ -1,6 +1,7 @@
 Gater
 ================
 Andrew Wight & Harvey Cantor
+
 Dana-Farber Research Institute, Boston, MA
 
 <img src="vignettes/gaterlogo.png" style="display: block; margin: auto 0 auto auto;" />
