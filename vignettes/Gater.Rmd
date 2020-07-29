@@ -1,7 +1,7 @@
 ---
 title: "Gater"
 subtitle: "Enabling conventional cytometry analysis in R"
-author: "Andrew Wight"
+author: "Andrew Wight, Harvey Cantor"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Gater}
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r echo = FALSE, fig.align = "right", fig.height = 1, fig.width = 1}
+```{r echo = FALSE, fig.height = 3, fig.width = 3}
 cowplot::ggdraw() + cowplot::draw_image("gaterlogo.svg")
 ```
 
@@ -114,7 +114,7 @@ recommend that you do at least while you are working through this vignette.
 (https://cran.r-project.org/bin/windows/Rtools/)
 3. Make sure that you have a GitHub account (http://github.com)
 4. Install BioConductor dependencies (see code below). Once gater is submitted
-to BioConductor, this step won't be necessary, but for the mean time, the code
+to BioConductor, this step won't be necessary, but for the meantime, the code
 we will use to install gater from github doesn't know how to automatically
 install dependencies that are hosted on BioConductor, so we need to do it
 ourselves first. Run the following code on your computer before proceeding:
@@ -178,7 +178,7 @@ The `system.file()` command above is needed to get at the .FCS files that have
 shipped with gater. However, when you are ready to read your own flow data into
 R, you can provide a simple path to the directory you are interested in. For
 example, if your target directory is something called "Flow Data" in your
-current working directory, you could simply pass `path_to_fcs <- "~/Flow Data/"
+current working directory, you could simply pass `path_to_fcs <- "~/Flow Data/"`
 and that would do the same thing.
 
 ```{r}
@@ -189,11 +189,11 @@ fs <- read.flowSet(path = path_to_fcs,
 ```
 
 Running this command first finds all of the files at the location specified by
-path_to_fcs and checks if any of them ends in .FCS (that's the "pattern =
-".FCS$") part of the code). All of them that satisfy the pattern are loaded into
-a flowSet called fs. Note that there are a lot of customization options here -
-have a look at the flowCore vignettes if you want to change something about this
-default behaviour.
+path_to_fcs and checks if any of them ends in .FCS (that's the `pattern =
+".FCS$"` part of the code). All of them that satisfy the pattern are loaded into
+a flowSet called fs. Note that there are a lot of customization options
+here---have a look at the flowCore vignettes if you want to change something
+about this default behaviour.
 
 ### Working with large flowSets
 
@@ -372,7 +372,11 @@ that with the above data import, it would look something like this:
 
 ```{r create import function}
 import_gs <- function(path, pattern, compensation_matrix){
-  fs <- read.flowSet(path = path, pattern = pattern, full.names = TRUE)
+  
+  fs <- read.flowSet(path = path, 
+                     pattern = pattern, 
+                     full.names = TRUE)
+  
   gs <- GatingSet(fs)
   
   comp <- compensation(compensation_matrix)
@@ -380,8 +384,11 @@ import_gs <- function(path, pattern, compensation_matrix){
   
   channels <- colnames(gs)[!stringr::str_detect(colnames(gs), "^FSC-.$|^SSC-.$|^Time$")]
   transformation_object <- flowjo_biexp_trans()
-  transformation_list <- transformerList(channels, transformation_object)
-  gs <- transform(gs, transformation_list)
+  transformation_list <- transformerList(channels, 
+                                         transformation_object)
+  
+  gs <- transform(gs, 
+                  transformation_list)
   
   return(gs)
 }
@@ -391,10 +398,21 @@ Now that we have defined this function, we can do all of the above steps in a
 couple of lines of code:
 
 ```{r functional import}
-path_to_fcs <- system.file("extdata", package = "gater")
-path_to_comp<- system.file("extdata", "compdata", "compmatrix", package = "flowCore")
-comp_matrix <- read.table(path_to_comp, header = TRUE, skip = 2, check.names = FALSE)
+#Setup the paths to your data as before
+path_to_fcs <- system.file("extdata", 
+                           package = "gater")
 
+path_to_comp<- system.file("extdata", 
+                           "compdata", 
+                           "compmatrix", 
+                           package = "flowCore")
+
+comp_matrix <- read.table(path_to_comp, 
+                          header = TRUE, 
+                          skip = 2, 
+                          check.names = FALSE)
+
+#Then run the import function we just created
 gs <- import_gs(path = path_to_fcs,
                 pattern = ".FCS$",
                 compensation_matrix = comp_matrix)
@@ -494,10 +512,10 @@ GatingSet.
 
 If something goes wrong when you are drawing your gates (such as if you draw a
 polygon gate when you still have "rectangle gate" selected), the shiny app can
-hang. If you exit out of the shiny window without clicking on "done" first, it's
-a good idea to make sure that the shiny app isn't still running in the
-background. Have a look at your R Console window and see if there is a stop sign
-in the upper-right corner.
+hang. If you exit out of the shiny window without clicking on "done" first, or
+if you do click "done" but get some warnings or errors, it's a good idea to make
+sure that the shiny app isn't still running in the background. Have a look at
+your R Console window and see if there is a stop sign in the upper-right corner.
 
 ```{r echo = FALSE, fig.height=3, fig.width=3}
 ggdraw() + draw_image("ShinyErrorHandling.png")
@@ -566,7 +584,7 @@ recompute(gs)
 ```
 
 Note that this time, unlike previously, we specify the dimensions (`dims`) we
-want to work with (CD45), and also the subset we want to look at (the "parent
+want to work with (CD45), and also the `subset` we want to look at (the "parent
 gate", in this case Leukocytes). Running `gs_gate_interactive()` with these
 arguments will draw a histogram instead of a dot plot, but otherwise the window
 will look as before.
@@ -779,6 +797,8 @@ semi-transparent grey, make the stats overlays slightly more friendly numbers,
 and increase the bins to make the dots a little less crude. Have a look at the
 code below and see if you can understand what is happening before reading on.
 
+__NB:__ the ggcyto package insists on "colour" as the only spelling of the word. Trying to set the "color" of your gate will result in hours of fruitless debugging.
+
 ```{r fig.height = 4.5}
 ggcyto(gs, aes("CD33", "CD15")) +
   geom_hex(bins = 128) +
@@ -859,3 +879,6 @@ Data Science (https://r4ds.had.co.nz/), which will give you an excellent
 introduction to all of these subjects and let you quickly plot graphs from these
 data without needing any external software.
 
+# Acknowledgements
+
+The authors thank Dr. Meromit Singer and the HMS computing core for help getting our lab started in applying bioinformatics methods. The original code for gater was based on the choose_cells() function from Monocle3 by the Trapnell lab (https://cole-trapnell-lab.github.io/monocle3/). Andrew Wight was funded by an AAI Intersect fellowship for cross-training immunologists in computational biology.
