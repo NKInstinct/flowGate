@@ -1,6 +1,7 @@
 Gater
 ================
-Andrew Wight
+Andrew Wight & Harvey Cantor
+Dana-Farber Research Institute, Boston, MA
 
 <img src="vignettes/gaterlogo.png" style="display: block; margin: auto 0 auto auto;" />
 
@@ -31,6 +32,7 @@ Some very basic experience with R is assumed, but this vignette is
 targeted toward a relative beginner and does not assume familiarity with
 other BioConductor packages or any previous attempts to analyze flow
 cytometry data in R.
+
 
 # Introduction
 
@@ -808,7 +810,11 @@ ggcyto to make them a little nicer. We’ll change three things: change
 the gates from bright red to a semi-transparent grey, make the stats
 overlays slightly more friendly numbers, and increase the bins to make
 the dots a little less crude. Have a look at the code below and see if
-you can understand what is happening before reading on.
+you can understand what is happening before reading on. 
+
+__NB:__ the ggcyto package insists on "colour" as the only spelling of 
+the word. Trying to set the "color" of your gate will result in hours
+of fruitless debugging.
 
 ``` r
 ggcyto(gs, aes("CD33", "CD15")) +
@@ -1009,3 +1015,13 @@ I highly recommend Wickham and Grolemund’s R for Data Science
 (<https://r4ds.had.co.nz/>), which will give you an excellent
 introduction to all of these subjects and let you quickly plot graphs
 from these data without needing any external software.
+
+# Acknowledgements
+
+The authors thank Dr. Meromit Singer and the HMS computing core for 
+help getting our lab started in applying bioinformatics methods. The 
+original code for gater was based on the `choose_cells()` function from 
+Monocle3 by the Trapnell lab 
+(<https://cole-trapnell-lab.github.io/monocle3/>). Andrew Wight was 
+funded by an AAI Intersect fellowship for cross-training immunologists 
+in computational biology.
