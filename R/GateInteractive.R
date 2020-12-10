@@ -241,10 +241,21 @@ gs_gate_interactive <- function(gs,
         res <- data.frame("x" = input$plot1_click$x,
                           "y" = input$plot1_click$y)
         vals$coords <- dplyr::bind_rows(vals$coords, res)
+
+        vals$plot <- vals$plot +
+          geom_path(data = vals$coords,
+                    aes(x, y),
+                    inherit.aes = FALSE)
+
       } else if(input$gateType == "quadGate"){
         #Quad Gate
         vals$coords <- list("X" = input$plot1_click$x,
                             "Y" = input$plot1_click$y)
+
+        vals$plot <- vals$plot +
+          ggplot2::geom_hline(yintercept = vals$coords$Y) +
+          ggplot2::geom_vline(xintercept = vals$coords$X)
+
       }
       # })
     })
@@ -252,6 +263,7 @@ gs_gate_interactive <- function(gs,
     # Reset all points
     shiny::observeEvent(input$reset, {
       vals$coords <- data.frame("x" = numeric(), "y" = numeric())
+      vals$plot <- gg
     })
 
     #Apply gate and close

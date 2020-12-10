@@ -221,14 +221,15 @@ fs <- read.ncdfFlowSet(files = list.files(path = path_to_fcs,
 
 FlowSets are excellent containers for holding flow data, but they cannot store
 information about gating very well. The flowWorkspace package introduces a new,
-similar data structure called a GatingSet that holds both the flowSet we just made
-and all gating information about it. Thankfully, once we have made a flowSet, it
-is very easy to prepare a GatingSet.
+similar data structure called a GatingSet that holds both the flowSet we just
+made and all gating information about it. Thankfully, once we have made a
+flowSet, it is very easy to prepare a GatingSet.
 
 ```{r make GatingSet}
 library(flowWorkspace)
 gs <- GatingSet(fs)
 ```
+
 ## Compensate the data
 
 So far we have created a flowSet and then turned it into a GatingSet. This
@@ -342,6 +343,7 @@ this programmatically:
 channels <- colnames(gs)[!stringr::str_detect(colnames(gs), "^FSC-.$|^SSC-.$|^Time$")]
 channels
 ```
+
 If you haven't worked much with strings and regular expressions yet, check out
 the stringr package for more information on how that code works. Essentially, it
 is storing all of the colnames in our GatingSet object that do not follow the
@@ -491,13 +493,9 @@ Once you have clicked on the kind of gate you want, you can proceed to draw it.
 Polygon gates (like this one) are drawn by clicking multiple times to trace a
 polygon. Other gates are drawn differently (Rectangle and Span gates are drawn
 by clicking and dragging a rectangle, and Quadrant gates are drawn by clicking
-once where the four quadrants meet). Note that when you draw a Polygon gate, the
-image doesn't update to show your polygon in realtime - you'll just have to
-remember where you put your points (though we're working on a better
-implementation of this now).
+once where the four quadrants meet).
 
-Go ahead and draw a polygon gate on your data. Again, remember that you won't
-see your polygon while you draw it.
+Go ahead and draw a polygon gate on your data.
 
 ```{r echo = FALSE}
 ggdraw() + draw_image("Window2drawgate.png")
@@ -520,6 +518,7 @@ your R Console window and see if there is a stop sign in the upper-right corner.
 ```{r echo = FALSE, fig.height=3, fig.width=3}
 ggdraw() + draw_image("ShinyErrorHandling.png")
 ```
+
 If that button is there, it means that the shiny app is still running and you
 should stop it before proceeding. Trying to do anything else in R while the
 shiny app runs in the background can cause all kinds of mysterious errors.
@@ -593,6 +592,7 @@ will look as before.
 ggdraw() + draw_image("Histogram1.png")
 
 ```
+
 Switch the gating mode over to "Span"
 
 ```{r echo=FALSE}
@@ -622,7 +622,7 @@ Now, as before, we can have a peek at the gate. This time, however, we're going
 to use the more expanded ggcyto command to start to get familiar with it. ggcyto
 uses the same grammar of graphics that ggplot uses, so if you are already
 familiar with ggplot, this should be very straightforward. If not, a full
-introduction to the grammar of graphics is beyond the scope of thie vignette,
+introduction to the grammar of graphics is beyond the scope of this vignette,
 but look at the code below and see if you can follow what is happening.
 
 ```{r}
@@ -631,6 +631,7 @@ ggcyto(gs[[1]], aes("CD45")) +
   geom_gate("CD45") +
   geom_stats()
 ```
+
 The idea behind the grammar of graphics is that you can draw any graph by first
 specifying the data the graph comes from, and then specifying the kind of image
 you want to make from those data. In this case, the first line of code tells
@@ -680,6 +681,7 @@ ggcyto(gs[[1]], aes("CD33", "CD15")) +
   geom_gate("CD33 CD15") +
   geom_stats()
 ```
+
 But wait! Running this command gives an error: the gate "CD33 CD15" isn't found.
 It's always a good idea to check your spelling when you see errors like this,
 but we can confirm that we did definitely just make a quadrant gate called "CD33
@@ -691,6 +693,7 @@ it's a good idea to ask gs for the names of all stored gates
 ```{r}
 gs_get_pop_paths(gs)
 ```
+
 As you can see above, when you draw a quadrant gate, it actually puts four new
 gates on the plot (one for each quadrant). Since all four of these can't be
 named "CD33 CD15", the quadrant gate ignores the filterId you give it and makes
@@ -706,6 +709,7 @@ ggcyto(gs[[1]], aes("CD33", "CD15")) +
               "CD33 APC-CD15 FITC-")) +
   geom_stats()
 ```
+
 If you are comfortable with the stringr package, you can also specify this a
 little more efficiently by first selecting all of the population paths that
 contain the word "CD33" and then passing this list to geom_gate:
@@ -718,6 +722,7 @@ ggcyto(gs[[1]], aes("CD33", "CD15")) +
   geom_gate(quadgates) +
   geom_stats()
 ```
+
 Again, this isn't that important, so if stringr is unfamiliar to you, don't
 worry about it yet and come back to this idea when you're more comfortable with
 working with strings.
@@ -744,10 +749,11 @@ save_gs(gs, "GvHD GatingSet.gs")
 gs <- load_gs(file.path("GvHD GatingSet.gs"))
 ```
 
-One very important note here---the `load_gs()` command is very sensitive to the
-way file paths are specified in a system, and in particular fails when you try
-to use it in a Windows environment. Wrapping your filepath with `file.path()`
-from base R will solve this problem and make it work across any OS.
+One very important note here---in some versions of flowWorkspace, the
+`load_gs()` command is very sensitive to the way file paths are specified in a
+system, and in particular fails when you try to use it in a Windows environment.
+Wrapping your filepath with `file.path()` from base R will solve this problem
+and make it work across any OS.
 
 It's also worth mentioning that another benefit of the NCDF style of flow
 cytometry data that we mentioned all the way back in data import is that the
@@ -756,7 +762,7 @@ thing (data, gates, compensation, etc) are stored in your GatingSet.gs
 directory. This is another reason that I like using the NCDF style of import,
 but as long as you don't move the .FCS files that are making up your GatingSet,
 you shouldn't run into any problems if you load the GatingSet through the
-conventional workflow (just like in FlowJo - don't move your FCS files around
+conventional workflow (just like in FlowJo---don't move your FCS files around
 after starting to analyze them!).
 
 # Data Export---Images and Summary Statistics
@@ -881,4 +887,9 @@ data without needing any external software.
 
 # Acknowledgements
 
-The authors thank Dr. Meromit Singer and the HMS computing core for help getting our lab started in applying bioinformatics methods. The original code for gater was based on the choose_cells() function from Monocle3 by the Trapnell lab (https://cole-trapnell-lab.github.io/monocle3/). Andrew Wight was funded by an AAI Intersect fellowship for cross-training immunologists in computational biology.
+The authors thank Dr. Meromit Singer and the HMS computing core for help getting
+our lab started in applying bioinformatics methods. The original code for gater
+was based on the choose_cells() function from Monocle3 by the Trapnell lab
+(https://cole-trapnell-lab.github.io/monocle3/). Andrew Wight was funded by an
+AAI Intersect fellowship for cross-training immunologists in computational
+biology.

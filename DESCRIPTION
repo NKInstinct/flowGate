@@ -1,7 +1,7 @@
 Package: gater
 Type: Package
 Title: Interactive Cytometry Gating in R
-Version: 0.0.0.9000
+Version: 0.0.1.9000
 Authors@R: as.person(c(
     "Andrew Wight <AndrewE_Wight@dfci.harvard.edu> [aut, cre]",
     "Harvey Cantor <Harvey_Cantor@dfci.harvard.edu> [aut, ldr]"
