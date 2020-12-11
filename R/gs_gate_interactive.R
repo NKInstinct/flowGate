@@ -107,15 +107,7 @@
 #'
 #'
 
-# helper functions ==================================
-theme_flowGate <- theme_gray() +
-        theme(axis.title = element_blank(),
-              axis.text = element_blank(),
-              axis.line = element_blank(),
-              axis.ticks = element_blank(),
-              title = element_blank(),
-              strip.background = element_blank(),
-              strip.text = element_blank())
+
 
 # main function =====================================
 #'
@@ -346,3 +338,13 @@ gs_gate_interactive <- function(gs,
     #Actually run the app------------------------------------
     shiny::runApp(shiny::shinyApp(ui, server))
 }
+
+# helper functions ==================================
+theme_flowGate <- theme_gray() +
+    theme(axis.title = element_blank(),
+          axis.text = element_blank(),
+          axis.line = element_blank(),
+          axis.ticks = element_blank(),
+          title = element_blank(),
+          strip.background = element_blank(),
+          strip.text = element_blank())
