@@ -24,14 +24,13 @@ LazyData: true
 Imports:
     shiny (>= 1.5.0),
     BiocManager (>= 1.30.10),
-    magrittr (>= 1.5),
     flowCore (>= 2.0.1),
     dplyr (>= 1.0.0),
     ggplot2 (>= 3.3.2)
 Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),
-    R (>= 3.5.0)
+    R (>= 4.1)
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,

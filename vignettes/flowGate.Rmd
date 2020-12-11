@@ -90,30 +90,32 @@ on expensive, closed-source software and does not allow for easy commenting and
 version control. Nevertheless, manual gating remains sufficiently difficult in R
 as to make this the method used in the Infinity Flow manuscript.
 
-flowGate was developed to fill in this missing ability for manual, GUI-based gating
-in R, finally enabling a familiar cytometry analysis pipeline completely within
-R. This vignette will demonstrate the flowGate function within the context of a
-complete cytometry analysis pipeline and is geared toward a researcher who has
-never used R for flow cytometry analysis at all.
+flowGate was developed to fill in this missing ability for manual, GUI-based
+gating in R, finally enabling a familiar cytometry analysis pipeline completely
+within R. This vignette will demonstrate the flowGate function within the
+context of a complete cytometry analysis pipeline and is geared toward a
+researcher who has never used R for flow cytometry analysis at all.
 
 # Setting up flowGate
 
-Prior to using flowGate, it must first be installed on your system. Because it is
-in active development and not yet submitted to BioConductor, you will need to
+Prior to using flowGate, it must first be installed on your system. Because it
+is in active development and not yet submitted to BioConductor, you will need to
 install it directly from GitHub. Installing packages from GitHub is slightly
 more complex than installing normal R packages, so if you've never done it
 before, here are some steps to follow:
 
 
-1. Install RStudio (https://rstudio.com). flowGate uses the Shiny package to make
-interactive gating possible, which tends to work best from inside the RStudio
-IDE. You don't strictly need to use RStudio to make this work, but this vignette
-is assuming that you are, and if you don't have a reason not to use RStudio, I
-recommend that you do at least while you are working through this vignette. 
+1. Install RStudio (https://rstudio.com). flowGate uses the Shiny package to
+make interactive gating possible, which tends to work best from inside the
+RStudio IDE. You don't strictly need to use RStudio to make this work, but this
+vignette is assuming that you are, and if you don't have a reason not to use
+RStudio, I recommend that you do at least while you are working through this
+vignette.
 2. If you are using a Windows operating system, install Rtools
 (https://cran.r-project.org/bin/windows/Rtools/)
 3. Make sure that you have a GitHub account (http://github.com)
-4. Install BioConductor dependencies (see code below). Once flowGate is submitted
+4. Install BioConductor dependencies (see code below). Once flowGate is
+submitted
 to BioConductor, this step won't be necessary, but for the meantime, the code
 we will use to install flowGate from github doesn't know how to automatically
 install dependencies that are hosted on BioConductor, so we need to do it
@@ -138,7 +140,8 @@ if(!requireNamespace("ggcyto", quietly = TRUE)){
 ```
 
 
-Once you have the BioConductor dependencies installed, you should be able to run the following code to download and install flowGate.
+Once you have the BioConductor dependencies installed, you should be able to run
+the following code to download and install flowGate.
 
 ```{r eval = FALSE}
 # install devtools if you don't already have it
@@ -176,9 +179,9 @@ path_to_fcs <- system.file("extdata", package = "flowGate")
 ```
 
 The `system.file()` command above is needed to get at the .FCS files that have
-shipped with flowGate. However, when you are ready to read your own flow data into
-R, you can provide a simple path to the directory you are interested in. For
-example, if your target directory is something called "Flow Data" in your
+shipped with flowGate. However, when you are ready to read your own flow data
+into R, you can provide a simple path to the directory you are interested in.
+For example, if your target directory is something called "Flow Data" in your
 current working directory, you could simply pass `path_to_fcs <- "~/Flow Data/"`
 and that would do the same thing.
 
@@ -244,8 +247,14 @@ is stored in an external file which we will import and apply to the GatingSet.
 There are other ways to compensate, which we will mention below.
 
 ```{r Compensate data}
-path_to_comp <- system.file("extdata", "compdata", "compmatrix", package = "flowCore")
-comp_matrix <- read.table(path_to_comp, header = TRUE, skip = 2, check.names = FALSE)
+path_to_comp <- system.file("extdata", 
+                            "compdata", 
+                            "compmatrix", 
+                            package = "flowCore")
+comp_matrix <- read.table(path_to_comp, 
+                          header = TRUE, 
+                          skip = 2, 
+                          check.names = FALSE)
 
 comp <- compensation(comp_matrix)
 
@@ -341,7 +350,8 @@ function to handle any flow data in the future, it would be better to define
 this programmatically:
 
 ```{r}
-channels <- colnames(gs)[!stringr::str_detect(colnames(gs), "^FSC-.$|^SSC-.$|^Time$")]
+channels <- colnames(gs)[!stringr::str_detect(colnames(gs),
+                                              "^FSC-.$|^SSC-.$|^Time$")]
 channels
 ```
 
@@ -385,7 +395,8 @@ import_gs <- function(path, pattern, compensation_matrix){
   comp <- compensation(compensation_matrix)
   gs <- compensate(gs, comp)
   
-  channels <- colnames(gs)[!stringr::str_detect(colnames(gs), "^FSC-.$|^SSC-.$|^Time$")]
+  channels <- colnames(gs)[!stringr::str_detect(colnames(gs),
+                                                "^FSC-.$|^SSC-.$|^Time$")]
   transformation_object <- flowjo_biexp_trans()
   transformation_list <- transformerList(channels, 
                                          transformation_object)
@@ -468,7 +479,8 @@ p1 <- readRDS("p1Gate.Rds")
 gs_pop_add(gs, p1)
 recompute(gs)
 ```
-When you first run the gs_gate_interactive command, a window like this should appear
+When you first run the gs_gate_interactive command, a window like this should
+appear
 
 ```{r echo = FALSE, message = FALSE}
 library(cowplot)
@@ -541,8 +553,8 @@ to assign it to a variable and then go from there.
 Now that we have drawn a leukocytes gate, it is a good idea to have a look at
 the plot and see that it looks the way we want it to. There are a number of ways
 to plot flow cytometry data in R---my favourite is with the ggcyto package,
-which is automatically installed with flowGate for visualization purposes. Since we
-only want to peek at the data right now to make sure our gate looks right, we
+which is automatically installed with flowGate for visualization purposes. Since
+we only want to peek at the data right now to make sure our gate looks right, we
 can use the easy-but-rigid `autoplot()` function, like so:
 
 ```{r}
@@ -561,8 +573,8 @@ is trying to make a rectangle gate out of the very first point you clicked for
 your polygon (hence an invisibly-small rectangle with 0% of the events in it).
 Again, we're working on making this mistake harder to make, but for now, just
 redo the gate by re-running `gs_gate_interactive()` again. Just make sure you
-add `regate = TRUE` to the command so flowGate knows to delete this Leukocytes gate
-before trying to add another Leukocytes gate to root.
+add `regate = TRUE` to the command so flowGate knows to delete this Leukocytes
+gate before trying to add another Leukocytes gate to root.
 
 ## Draw more gates
 
@@ -716,7 +728,8 @@ little more efficiently by first selecting all of the population paths that
 contain the word "CD33" and then passing this list to geom_gate:
 
 ```{r}
-quadgates <- gs_get_pop_paths(gs)[stringr::str_detect(gs_get_pop_paths(gs), "CD33")]
+quadgates <- gs_get_pop_paths(gs)[stringr::str_detect(gs_get_pop_paths(gs),
+                                                      "CD33")]
 
 ggcyto(gs[[1]], aes("CD33", "CD15")) +
   geom_hex(bins = 64) +
@@ -787,8 +800,9 @@ we plotted something, we specified that we only wanted the first sample in gs
 with `gs[[1]]`? All we need to do is not specify anything and ggcyto will plot
 all three graphs.
 
-```{r fig.height = 4.5}
-quadgates <- gs_get_pop_paths(gs)[stringr::str_detect(gs_get_pop_paths(gs), "CD33")]
+```{r, fig.height = 4.5}
+quadgates <- gs_get_pop_paths(gs)[stringr::str_detect(gs_get_pop_paths(gs),
+                                                      "CD33")]
 
 ggcyto(gs, aes("CD33", "CD15")) +
   geom_hex(bins = 64) +
@@ -804,7 +818,9 @@ semi-transparent grey, make the stats overlays slightly more friendly numbers,
 and increase the bins to make the dots a little less crude. Have a look at the
 code below and see if you can understand what is happening before reading on.
 
-__NB:__ the ggcyto package insists on "colour" as the only spelling of the word. Trying to set the "color" of your gate will result in hours of fruitless debugging.
+__NB:__ the ggcyto package insists on "colour" as the only spelling of the word.
+Trying to set the "color" of your gate will result in hours of fruitless
+debugging.
 
 ```{r fig.height = 4.5}
 ggcyto(gs, aes("CD33", "CD15")) +
@@ -889,8 +905,8 @@ data without needing any external software.
 # Acknowledgements
 
 The authors thank Dr. Meromit Singer and the HMS computing core for help getting
-our lab started in applying bioinformatics methods. The original code for flowGate
-was based on the choose_cells() function from Monocle3 by the Trapnell lab
-(https://cole-trapnell-lab.github.io/monocle3/). Andrew Wight was funded by an
-AAI Intersect fellowship for cross-training immunologists in computational
+our lab started in applying bioinformatics methods. The original code for
+flowGate was based on the choose_cells() function from Monocle3 by the Trapnell
+lab (https://cole-trapnell-lab.github.io/monocle3/). Andrew Wight was funded by
+an AAI Intersect fellowship for cross-training immunologists in computational
 biology.
