@@ -1,10 +1,10 @@
 ---
-title: "Gater"
+title: "flowGate"
 subtitle: "Enabling conventional cytometry analysis in R"
 author: "Andrew Wight, Harvey Cantor"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Gater}
+  %\VignetteIndexEntry{flowGate}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r echo = FALSE, fig.height = 3, fig.width = 3}
-cowplot::ggdraw() + cowplot::draw_image("gaterlogo.svg")
+#cowplot::ggdraw() + cowplot::draw_image("gaterlogo.svg")
 ```
 
 # Abstract
@@ -36,13 +36,13 @@ We believe that this is because drawing gates, a central task in flow cytometry
 analysis, is still extremely cumbersome in R. Currently, gates must either be
 automatically derived by unfamiliar computer models or specified by manually
 typing point-by-point x-y coordintates for each gate. In this vignette, we
-describe gater, a new package that provides a simple and familiar graphical
+describe flowGate, a new package that provides a simple and familiar graphical
 interface to R that allows gating by drawing gates on top of flow plots. We
 believe this is the missing piece that will allow even a relative newcomer to R
 to quickly and confidently perform traditional cytometry analyses. This vignette
 works through a simple flow analysis workflow in detail, beginning with package
 setup and data import, compensation, and transformation before displaying how to
-gate the data using gater, and then concludes with a simple example of how to
+gate the data using flowGate, and then concludes with a simple example of how to
 produce professional-looking graphs and summary statistics from these gates.
 Some very basic experience with R is assumed, but this vignette is targeted
 toward a relative beginner and does not assume familiarity with other
@@ -90,22 +90,22 @@ on expensive, closed-source software and does not allow for easy commenting and
 version control. Nevertheless, manual gating remains sufficiently difficult in R
 as to make this the method used in the Infinity Flow manuscript.
 
-Gater was developed to fill in this missing ability for manual, GUI-based gating
+flowGate was developed to fill in this missing ability for manual, GUI-based gating
 in R, finally enabling a familiar cytometry analysis pipeline completely within
-R. This vignette will demonstrate the gater function within the context of a
+R. This vignette will demonstrate the flowGate function within the context of a
 complete cytometry analysis pipeline and is geared toward a researcher who has
 never used R for flow cytometry analysis at all.
 
-# Setting up gater
+# Setting up flowGate
 
-Prior to using gater, it must first be installed on your system. Because it is
+Prior to using flowGate, it must first be installed on your system. Because it is
 in active development and not yet submitted to BioConductor, you will need to
 install it directly from GitHub. Installing packages from GitHub is slightly
 more complex than installing normal R packages, so if you've never done it
 before, here are some steps to follow:
 
 
-1. Install RStudio (https://rstudio.com). Gater uses the Shiny package to make
+1. Install RStudio (https://rstudio.com). flowGate uses the Shiny package to make
 interactive gating possible, which tends to work best from inside the RStudio
 IDE. You don't strictly need to use RStudio to make this work, but this vignette
 is assuming that you are, and if you don't have a reason not to use RStudio, I
@@ -113,9 +113,9 @@ recommend that you do at least while you are working through this vignette.
 2. If you are using a Windows operating system, install Rtools
 (https://cran.r-project.org/bin/windows/Rtools/)
 3. Make sure that you have a GitHub account (http://github.com)
-4. Install BioConductor dependencies (see code below). Once gater is submitted
+4. Install BioConductor dependencies (see code below). Once flowGate is submitted
 to BioConductor, this step won't be necessary, but for the meantime, the code
-we will use to install gater from github doesn't know how to automatically
+we will use to install flowGate from github doesn't know how to automatically
 install dependencies that are hosted on BioConductor, so we need to do it
 ourselves first. Run the following code on your computer before proceeding:
 
@@ -138,7 +138,7 @@ if(!requireNamespace("ggcyto", quietly = TRUE)){
 ```
 
 
-Once you have the BioConductor dependencies installed, you should be able to run the following code to download and install gater.
+Once you have the BioConductor dependencies installed, you should be able to run the following code to download and install flowGate.
 
 ```{r eval = FALSE}
 # install devtools if you don't already have it
@@ -146,8 +146,9 @@ if(!requireNamespace("devtools", quietly = TRUE)){
   install.packages("devtools")
 }
 
-devtools::install_github("NKInstinct/gater")
+devtools::install_github("NKInstinct/flowGate")
 ```
+
 # Preparing your cytometry data
 
 Before you can start drawing gates on your data, you need to read it into R and
@@ -164,18 +165,18 @@ sure how to do that.
 The example flow data used in this package comes from the GvHD data included in
 flowCore, the base package for all flow cytometry data analysis in R. The GvHD
 data that comes with flowCore is already stored in a flowSet, so for this
-example, you can find the first three samples from GvHD bundled with gater as
+example, you can find the first three samples from GvHD bundled with flowGate as
 individual .FCS files, which we will turn into a flowSet here.
 
 ```{r}
-library(gater)
+library(flowGate)
 library(flowCore)
 
-path_to_fcs <- system.file("extdata", package = "gater")
+path_to_fcs <- system.file("extdata", package = "flowGate")
 ```
 
 The `system.file()` command above is needed to get at the .FCS files that have
-shipped with gater. However, when you are ready to read your own flow data into
+shipped with flowGate. However, when you are ready to read your own flow data into
 R, you can provide a simple path to the directory you are interested in. For
 example, if your target directory is something called "Flow Data" in your
 current working directory, you could simply pass `path_to_fcs <- "~/Flow Data/"`
@@ -306,7 +307,7 @@ It is also possible, using the flowCore package, to automatically create a
 compensation matrix from single colour control samples. Exactly how to do this
 is beyond the scope of this vignette, so you are encouraged to look into the
 flowCore vignettes for further instructions. In general, however, it is a bit of
-a pain to do, so if you know you are going to be using gater for your flow
+a pain to do, so if you know you are going to be using flowGate for your flow
 analysis, you are probably better off making sure you have an
 acquisition-defined compensation matrix or an external compensation matrix saved
 as a .csv before proceeding.
@@ -402,7 +403,7 @@ couple of lines of code:
 ```{r functional import}
 #Setup the paths to your data as before
 path_to_fcs <- system.file("extdata", 
-                           package = "gater")
+                           package = "flowGate")
 
 path_to_comp<- system.file("extdata", 
                            "compdata", 
@@ -444,7 +445,7 @@ colnames(gs)
 markernames(gs)
 ```
 Note that not every detector name has a corresponding marker name. Thankfully,
-gater can handle either kind of name interchangeably, so it's not hard to use
+flowGate can handle either kind of name interchangeably, so it's not hard to use
 whichever is more appropriate for the situation.
 
 ## Draw your first gate
@@ -540,7 +541,7 @@ to assign it to a variable and then go from there.
 Now that we have drawn a leukocytes gate, it is a good idea to have a look at
 the plot and see that it looks the way we want it to. There are a number of ways
 to plot flow cytometry data in R---my favourite is with the ggcyto package,
-which is automatically installed with gater for visualization purposes. Since we
+which is automatically installed with flowGate for visualization purposes. Since we
 only want to peek at the data right now to make sure our gate looks right, we
 can use the easy-but-rigid `autoplot()` function, like so:
 
@@ -560,7 +561,7 @@ is trying to make a rectangle gate out of the very first point you clicked for
 your polygon (hence an invisibly-small rectangle with 0% of the events in it).
 Again, we're working on making this mistake harder to make, but for now, just
 redo the gate by re-running `gs_gate_interactive()` again. Just make sure you
-add `regate = TRUE` to the command so gater knows to delete this Leukocytes gate
+add `regate = TRUE` to the command so flowGate knows to delete this Leukocytes gate
 before trying to add another Leukocytes gate to root.
 
 ## Draw more gates
@@ -647,7 +648,7 @@ stats (in this case the percent parent) to any gates drawn on the graph.
 
 Using `ggcyto()` instead of `autoplot()` is a little more cumbersome to type,
 but provides much more customization to the resulting graph, and is well worth
-learning how to use if you are regularly going to use R and gater for flow
+learning how to use if you are regularly going to use R and flowGate for flow
 analysis. For that reason, the rest of this vignette will use `ggcyto()` calls
 to generate graphs, so we can get more familiar with what they look like.
 
@@ -888,7 +889,7 @@ data without needing any external software.
 # Acknowledgements
 
 The authors thank Dr. Meromit Singer and the HMS computing core for help getting
-our lab started in applying bioinformatics methods. The original code for gater
+our lab started in applying bioinformatics methods. The original code for flowGate
 was based on the choose_cells() function from Monocle3 by the Trapnell lab
 (https://cole-trapnell-lab.github.io/monocle3/). Andrew Wight was funded by an
 AAI Intersect fellowship for cross-training immunologists in computational
