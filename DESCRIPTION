@@ -1,14 +1,23 @@
-Package: gater
+Package: flowGate
 Type: Package
 Title: Interactive Cytometry Gating in R
-Version: 0.0.1.9000
-Authors@R: as.person(c(
-    "Andrew Wight <AndrewE_Wight@dfci.harvard.edu> [aut, cre]",
-    "Harvey Cantor <Harvey_Cantor@dfci.harvard.edu> [aut, ldr]"
-  ))
-Description: A single-function package allowing you to interactively
-    draw rectangle, polygon, 1-d span, and 2-d quadrant gates on
-    flow cytometry data in R.
+Version: 0.99.0
+Authors@R: c(person("Andrew", 
+                    "Wight", 
+                    email = "AndrewE_Wight@dfci.harvard.edu", 
+                    role = c("aut", "cre")),
+             person("Harvey",
+                    "Cantor",
+                    email = "Harvey_Cantor@dfci.harvard.edu",
+                    role = c("aut", "ldr")))
+Description: flowGate adds an interactive Shiny app to allow manual 
+    GUI-based gating of flow cytometry data in R. Using flowGate, 
+    you can draw 1D and 2D span/rectangle gates, quadrant gates, 
+    and polygon gates on flow cytometry data by interactively drawing 
+    the gates on a plot of your data, rather than by specifying gate 
+    coordinates. This package is especially geared toward wet-lab 
+    cytometerists looking to take advantage of R for cytometry 
+    analysis, without necessarily having a lot of R experience.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -21,7 +30,8 @@ Imports:
     ggplot2 (>= 3.3.2)
 Depends:
     flowWorkspace (>= 4.0.6),
-    ggcyto (>= 1.16.0)
+    ggcyto (>= 1.16.0),
+    R (>= 3.5.0)
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
@@ -34,4 +44,7 @@ VignetteBuilder: knitr
 biocViews:
     Software,
     WorkflowStep,
-    FlowCytometry
+    FlowCytometry,
+    Preprocessing,
+    ImmunoOncology,
+    DataImport
