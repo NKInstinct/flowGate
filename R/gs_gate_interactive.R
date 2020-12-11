@@ -46,53 +46,78 @@
 #'
 #' @examples
 #'
-#' \donttest{
+#' path_to_fcs <- system.file("extdata", package = "flowGate")
+#' fs <- read.flowSet(path = path_to_fcs,
+#'                    pattern = ".FCS$",
+#'                    full.names = TRUE)
+#' gs <- GatingSet(fs)
+#'
+#' if(interactive()) { # only run in interactive sessions
 #' gs_gate_interactive(gs,
 #'                     filterId = "Lymphocytes")
+#' }
 #'
 #' # returns gs with the same "Lymphocytes" gate on FSC-A and SSC-A applied to
 #' # the root node (all events) of each sample in the GateSet.
 #'
+#' if(interactive()) {
 #' gs_gate_interactive(gs,
 #'                     filterId = "Live cells",
 #'                     dims = "Viability",
 #'                     subset = "Lymphocytes")
+#' }
 #'
 #' # returns gs with a "Live cells" gate drawn on all cells included in the
 #' # parent "Lymphocytes" gate. This gate would be based on a histogram of a
 #' # marker called Viability, using the first GatingHierarchy sample as an
 #' # example.
 #'
+#' if(interactive()){
 #' gs_gate_interactive(gs,
 #'                     filterId = "Live cells",
 #'                     dims = list("Viability", "SSC-A"),
 #'                     subset = "Lymphocytes",
 #'                     regate = TRUE)
+#' }
 #'
 #' # first deletes the "Live cells" gate drawn above, then adds a new "Live
 #' # cells" gate to the set, this time based on a dot plot of Viability by
 #' # side-scatter.
 #'
+#' if(interactive()){
 #' gs_gate_interactive(gs,
 #'                     filterId = "Dead cells",
 #'                     dims = list("Viability", "SSC-A"),
 #'                     subset = "Lymphocytes",
 #'                     overlayGates = "Live cells")
-#'
-#' # returns gs with a "Dead cells" gate drawn on the same example graph that #
-#' was used to draw the "Live cells" gate above. Overlays the "Live cells" gate
-#' # on top of this graph to aid in drawing the "Dead cells" gate.
-#'
 #' }
+#'
+#' # returns gs with a "Dead cells" gate drawn on the same example graph that
+#' # was used to draw the "Live cells" gate above. Overlays the "Live cells"
+#' # gate on top of this graph to aid in drawing the "Dead cells" gate.
 #'
 #' @return The GateSet object with a new gating applied and named as specified
 #'   in filterId. Also recalculates the GateSet.
 #'
 #' @import flowWorkspace
 #' @import ggcyto
-#' @importFrom magrittr %>%
+#' @import BiocManager
 #' @importFrom ggplot2 aes geom_density scale_x_continuous scale_y_continuous
 #' @importFrom ggplot2 theme element_blank coord_cartesian geom_hex geom_path
+#'
+#'
+
+# helper functions ==================================
+theme_flowGate <- theme_gray() +
+        theme(axis.title = element_blank(),
+              axis.text = element_blank(),
+              axis.line = element_blank(),
+              axis.ticks = element_blank(),
+              title = element_blank(),
+              strip.background = element_blank(),
+              strip.text = element_blank())
+
+# main function =====================================
 #'
 #' @export
 #'
@@ -129,13 +154,7 @@ gs_gate_interactive <- function(gs,
             geom_density() +
             scale_x_continuous(expand = c(0,0)) +
             scale_y_continuous(expand = c(0,0)) +
-            theme(axis.title = element_blank(),
-                  axis.text = element_blank(),
-                  axis.line = element_blank(),
-                  axis.ticks = element_blank(),
-                  title = element_blank(),
-                  strip.background = element_blank(),
-                  strip.text = element_blank())
+            theme_flowGate
         if(!is.null(coords)){
             gg <- gg + coord_cartesian(xlim = coords[[1]])
         }
@@ -147,13 +166,7 @@ gs_gate_interactive <- function(gs,
             geom_hex(bins = bins) +
             scale_x_continuous(expand = c(0,0)) +
             scale_y_continuous(expand = c(0,0)) +
-            theme(axis.title = element_blank(),
-                  axis.text = element_blank(),
-                  axis.line = element_blank(),
-                  axis.ticks = element_blank(),
-                  title = element_blank(),
-                  strip.background = element_blank(),
-                  strip.text = element_blank())
+            theme_flowGate
 
         if(!is.null(coords)){
             gg <- gg + coord_cartesian(xlim = coords[[1]],
@@ -238,6 +251,7 @@ gs_gate_interactive <- function(gs,
         })
 
         #Click Gates
+
         shiny::observeEvent(input$plot1_click, {
             # req(input$gateType)
             # reactive({
@@ -249,7 +263,7 @@ gs_gate_interactive <- function(gs,
 
                 vals$plot <- vals$plot +
                     geom_path(data = vals$coords,
-                              aes(x, y),
+                              aes(x, y, group = 1),
                               inherit.aes = FALSE)
 
             } else if(input$gateType == "quadGate"){
@@ -264,6 +278,7 @@ gs_gate_interactive <- function(gs,
             }
             # })
         })
+
 
         # Reset all points
         shiny::observeEvent(input$reset, {
@@ -284,16 +299,15 @@ gs_gate_interactive <- function(gs,
                 #Get the channel name instead of the short name
                 names(vals$coords) <- c(names(gg[[1]])[[3]],
                                         names(gg[[1]])[[4]])
-                vals$coords <- vals$coords %>%
-                    as.matrix %>%
-                    flowCore::polygonGate(filterId = filterId)
-
+                vals$coords <- as.matrix(vals$coords)
+                vals$coords <- flowCore::polygonGate(vals$coords,
+                                                     filterId = filterId)
                 #If it isn't a dataframe, check if it's a length-1 list. If so,
                 #it has to be a span (only single-dimension gate)
             } else if(length(vals$coords) == 1){
                 names(vals$coords) <- c(names(gg[[1]])[[3]])
-                vals$coords <- vals$coords %>%
-                    flowCore::rectangleGate(filterId = filterId)
+                vals$coords <- flowCore::rectangleGate(vals$coords,
+                                                       filterId = filterId)
 
                 #If it isn't a span, check the length of the first element of
                 #the list. If it's only length-1, that means this is a quad gate
@@ -301,8 +315,8 @@ gs_gate_interactive <- function(gs,
             }  else if(length(vals$coords[[1]]) == 1){
                 names(vals$coords) <- c(names(gg[[1]])[[3]],
                                         names(gg[[1]])[[4]])
-                vals$coords <- vals$coords %>%
-                    flowCore::quadGate(filterId = filterId)
+                vals$coords <- flowCore::quadGate(vals$coords,
+                                                  filterId = filterId)
 
                 #At this point, it should be a rectangle, but just in case we're
                 #going to check that the first element is length-2 and if it
@@ -311,8 +325,8 @@ gs_gate_interactive <- function(gs,
             } else if(length(vals$coords[[1]]) == 2){
                 names(vals$coords) <- c(names(gg[[1]])[[3]],
                                         names(gg[[1]])[[4]])
-                vals$coords <- vals$coords %>%
-                    flowCore::rectangleGate(filterId = filterId)
+                vals$coords <- flowCore::rectangleGate(vals$coords,
+                                                       filterId = filterId)
             } else {
                 stop("What did you draw? I'm sure it was
              pretty but it wasn't anything I can
@@ -330,7 +344,5 @@ gs_gate_interactive <- function(gs,
     }
 
     #Actually run the app------------------------------------
-    sel <- shiny::runApp(shiny::shinyApp(ui, server))
-
-    return(sel)
+    shiny::runApp(shiny::shinyApp(ui, server))
 }
