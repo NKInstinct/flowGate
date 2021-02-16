@@ -1,8 +1,3 @@
-# Better interactive select cells
-# Shamelessly stolen from the Trappnel lab's Monocle 3 "Select cells" and
-# adapted
-# for flow cytometry
-
 #' Interactive Manual Gating
 #'
 #' \code{gs_gate_interactive} opens a new graphical window where you can draw
@@ -54,10 +49,11 @@
 #'
 #' if(interactive()) { # only run in interactive sessions
 #' gs_gate_interactive(gs,
-#'                     filterId = "Lymphocytes")
+#'                     filterId = "Lymphocytes",
+#'                     dims = list("FSC-H", "SSC-H"))
 #' }
 #'
-#' # returns gs with the same "Lymphocytes" gate on FSC-A and SSC-A applied to
+#' # returns gs with the same "Lymphocytes" gate on FSC-H and SSC-H applied to
 #' # the root node (all events) of each sample in the GateSet.
 #'
 #' if(interactive()) {
@@ -102,14 +98,11 @@
 #' @import flowWorkspace
 #' @import ggcyto
 #' @import BiocManager
-#' @importFrom ggplot2 aes geom_density scale_x_continuous scale_y_continuous
-#' @importFrom ggplot2 theme element_blank coord_cartesian geom_hex geom_path
+#' @importFrom ggplot2 aes_ aes geom_density scale_x_continuous
+#' @importFrom ggplot2 scale_y_continuous geom_path geom_hex
+#' @importFrom ggplot2 theme element_blank coord_cartesian
+#' @importFrom rlang .data
 #'
-#'
-
-
-
-# main function =====================================
 #'
 #' @export
 #'
@@ -123,98 +116,14 @@ gs_gate_interactive <- function(gs,
                                 regate = FALSE,
                                 overlayGates = NULL){
 
-    #Delete gate if regating-----------------------
-    if(regate == TRUE){
-        gs_pop_remove(gs, filterId)
-    }
-
-    #Select only the one sample to plot------------
-    sample.gs <- gs[[sample]]
-
-
-    #generate the plot using the input params------
-    if(length(dims) > 2){
-        warning("gs_gate_interactive can only handle one or two dims.
-            The first two dims will be used, the others discarded.")
-    }
-
-
-    if(length(dims) == 1){
-        gg <- ggcyto::ggcyto(sample.gs,
-                             aes(!!dims[[1]]),
-                             subset = subset) +
-            geom_density() +
-            scale_x_continuous(expand = c(0,0)) +
-            scale_y_continuous(expand = c(0,0)) +
-            theme_flowGate
-        if(!is.null(coords)){
-            gg <- gg + coord_cartesian(xlim = coords[[1]])
-        }
-    } else {
-        gg <- ggcyto::ggcyto(sample.gs,
-                             aes(!!dims[[1]],
-                                 !!dims[[2]]),
-                             subset = subset) +
-            geom_hex(bins = bins) +
-            scale_x_continuous(expand = c(0,0)) +
-            scale_y_continuous(expand = c(0,0)) +
-            theme_flowGate
-
-        if(!is.null(coords)){
-            gg <- gg + coord_cartesian(xlim = coords[[1]],
-                                       ylim = coords[[2]])
-        }
-    }
-
-    if(!is.null(overlayGates)){
-        gg <- gg + geom_gate(overlayGates)
-    }
-
-    gg <- as.ggplot(gg)
-
-    #Setup the UI----------------------------------
-    ui <- shiny::fluidPage(
-        shiny::titlePanel("Draw your gate"),
-
-        # Sidebar layout with input and output definitions ----
-        shiny::sidebarLayout(
-
-            # Sidebar panel for inputs ----
-            shiny::sidebarPanel(
-                # clear button - only actually needed for the click ones, not
-                # the brush ones
-                shiny::actionButton("reset", "Clear"),
-                # done button
-                shiny::actionButton("done", "Done"),
-
-                shiny::radioButtons("gateType", "Gate Type:",
-                                    c("Rectangle" = "rectangleGate",
-                                      "Polygon" = "polygonGate",
-                                      "Span" = "spanGate",
-                                      "Quadrant" = "quadGate"),
-                                    selected = "rectangleGate"),
-            ),
-
-            # Main panel for displaying outputs ----
-            shiny::mainPanel(
-                shiny::plotOutput("plot1",
-                                  height="auto",
-                                  # width="500px",
-                                  click = "plot1_click",
-                                  brush = shiny::brushOpts(id = "plot1_brush"))
-            )
-        )
-    )
-
-    #Make server functions----------------------
+    gg <- preparePlot(gs, filterId, sample, dims, subset,
+                      bins, coords, regate, overlayGates)
 
     server <- function(input, output, session) {
-
         vals <- shiny::reactiveValues(
             plot = gg,
             coords = data.frame("x" = numeric(), "y" = numeric())
         )
-
         output$plot1 <- shiny::renderPlot({
             vals$plot
         },
@@ -222,129 +131,46 @@ gs_gate_interactive <- function(gs,
             session$clientData$output_plot1_width
         }
         )
-
-        #Brush Gates
+        #Brush Gates ---------------------------------------------------
         shiny::observeEvent(input$plot1_brush, {
-            # req(input$gateType)
-            # reactive({
-            if(input$gateType == "rectangleGate"){
-                #Rectangle Gate
-                vals$coords <- list("X" = c(input$plot1_brush$xmin,
-                                            input$plot1_brush$xmax),
-                                    "Y" = c(input$plot1_brush$ymin,
-                                            input$plot1_brush$ymax))
-            } else if(input$gateType == "spanGate"){
-                #Span Gate
-                vals$coords <- list("X" = c(input$plot1_brush$xmin,
-                                            input$plot1_brush$xmax))
-            }
-            # })
-
+            if(input$gateType %in% c("rectangleGate", "spanGate")){
+                vals$coords <- coordBrush(input$plot1_brush,
+                                          input$gateType)
+           }
         })
-
-        #Click Gates
-
+        #Click Gates ---------------------------------------------------
         shiny::observeEvent(input$plot1_click, {
-            # req(input$gateType)
-            # reactive({
             if(input$gateType == "polygonGate"){
-                #Polygon Gate
-                res <- data.frame("x" = input$plot1_click$x,
-                                  "y" = input$plot1_click$y)
+                res <- coordClick(input$plot1_click, input$gateType)
                 vals$coords <- dplyr::bind_rows(vals$coords, res)
-
-                vals$plot <- vals$plot +
-                    geom_path(data = vals$coords,
-                              aes(x, y, group = 1),
-                              inherit.aes = FALSE)
-
-            } else if(input$gateType == "quadGate"){
-                #Quad Gate
-                vals$coords <- list("X" = input$plot1_click$x,
-                                    "Y" = input$plot1_click$y)
-
+                if(nrow(vals$coords) > 1){
+                    vals$plot <- vals$plot +
+                        geom_path(data = vals$coords,
+                                  aes(.data$x, .data$y),
+                                  inherit.aes = FALSE)
+                }
+            }else if(input$gateType == "quadGate"){
+                vals$coords <- coordClick(input$plot1_click, input$gateType)
                 vals$plot <- vals$plot +
                     ggplot2::geom_hline(yintercept = vals$coords$Y) +
                     ggplot2::geom_vline(xintercept = vals$coords$X)
-
             }
-            # })
         })
-
-
-        # Reset all points
+        # Reset all points ----------------------------------------------
         shiny::observeEvent(input$reset, {
             vals$coords <- data.frame("x" = numeric(), "y" = numeric())
             vals$plot <- gg
         })
-
-        #Apply gate and close
+        # Apply gate and close ------------------------------------------
         shiny::observeEvent(input$done, {
-            # reactive({
-            #Kinda weird gating strat but here it goes: Of the four options,
-            #only the polygon gate is stored as a dataframe, so first check if
-            #the coordinates are a data.frame. If so, this should be treated as
-            #a polygon (this way if someone draws a rectangular polygon, it will
-            #still be treated as a polygon and not as a rectangle. Very
-            #important for slanty rectangles)
-            if(is.data.frame(vals$coords)){
-                #Get the channel name instead of the short name
-                names(vals$coords) <- c(names(gg[[1]])[[3]],
-                                        names(gg[[1]])[[4]])
-                vals$coords <- as.matrix(vals$coords)
-                vals$coords <- flowCore::polygonGate(vals$coords,
-                                                     filterId = filterId)
-                #If it isn't a dataframe, check if it's a length-1 list. If so,
-                #it has to be a span (only single-dimension gate)
-            } else if(length(vals$coords) == 1){
-                names(vals$coords) <- c(names(gg[[1]])[[3]])
-                vals$coords <- flowCore::rectangleGate(vals$coords,
-                                                       filterId = filterId)
-
-                #If it isn't a span, check the length of the first element of
-                #the list. If it's only length-1, that means this is a quad gate
-                #(which gets defined by a single, two-dimensional point)
-            }  else if(length(vals$coords[[1]]) == 1){
-                names(vals$coords) <- c(names(gg[[1]])[[3]],
-                                        names(gg[[1]])[[4]])
-                vals$coords <- flowCore::quadGate(vals$coords,
-                                                  filterId = filterId)
-
-                #At this point, it should be a rectangle, but just in case we're
-                #going to check that the first element is length-2 and if it
-                #isn't, throw an error because the thing that got passed doesn't
-                #fit any gating scheme we know.
-            } else if(length(vals$coords[[1]]) == 2){
-                names(vals$coords) <- c(names(gg[[1]])[[3]],
-                                        names(gg[[1]])[[4]])
-                vals$coords <- flowCore::rectangleGate(vals$coords,
-                                                       filterId = filterId)
-            } else {
-                stop("What did you draw? I'm sure it was
-             pretty but it wasn't anything I can
-             recognize as a gate")
-            }
-
-
-            gs_pop_add(gs, vals$coords, parent = subset)
+            gate <- applyGateClose(vals$coords,
+                                   input$gateType,
+                                   filterId,
+                                   vals$plot)
+            gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
-
-
-            shiny::stopApp(vals$coords)
+            shiny::stopApp(gate)
         })
-
     }
-
-    #Actually run the app------------------------------------
-    shiny::runApp(shiny::shinyApp(ui, server))
+    shiny::shinyApp(ui, server)
 }
-
-# helper functions ==================================
-theme_flowGate <- theme_gray() +
-    theme(axis.title = element_blank(),
-          axis.text = element_blank(),
-          axis.line = element_blank(),
-          axis.ticks = element_blank(),
-          title = element_blank(),
-          strip.background = element_blank(),
-          strip.text = element_blank())

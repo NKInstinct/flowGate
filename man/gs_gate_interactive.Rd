@@ -79,10 +79,11 @@ gs <- GatingSet(fs)
 
 if(interactive()) { # only run in interactive sessions
 gs_gate_interactive(gs,
-                    filterId = "Lymphocytes")
+                    filterId = "Lymphocytes",
+                    dims = list("FSC-H", "SSC-H"))
 }
 
-# returns gs with the same "Lymphocytes" gate on FSC-A and SSC-A applied to
+# returns gs with the same "Lymphocytes" gate on FSC-H and SSC-H applied to
 # the root node (all events) of each sample in the GateSet.
 
 if(interactive()) {
