@@ -27,4 +27,6 @@ applyGateClose <- function(coords, gateType, filterId, gg){
                        names(gg[[1]])[[4]])
     gate <- flowCore::rectangleGate(coords, filterId = filterId)
   }
+
+  return(gate)
 }
