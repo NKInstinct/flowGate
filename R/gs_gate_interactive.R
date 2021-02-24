@@ -115,13 +115,13 @@ gs_gate_interactive <- function(gs,
                                 coords = NULL,
                                 regate = FALSE,
                                 overlayGates = NULL){
-
-    gg <- preparePlot(gs, filterId, sample, dims, subset,
-                      bins, coords, regate, overlayGates)
+    # Delete gate if regating
+    if(regate == TRUE){gs_pop_remove(gs, filterId)}
 
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(
-            plot = gg,
+            plot = preparePlot(gs, sample, dims, subset, bins,
+                               coords, regate, overlayGates),
             coords = data.frame("x" = numeric(), "y" = numeric())
         )
         output$plot1 <- shiny::renderPlot({
@@ -159,7 +159,8 @@ gs_gate_interactive <- function(gs,
         # Reset all points ----------------------------------------------
         shiny::observeEvent(input$reset, {
             vals$coords <- data.frame("x" = numeric(), "y" = numeric())
-            vals$plot <- gg
+            vals$plot <- preparePlot(gs, sample, dims, subset, bins,
+                                     coords, regate, overlayGates)
         })
         # Apply gate and close ------------------------------------------
         shiny::observeEvent(input$done, {
