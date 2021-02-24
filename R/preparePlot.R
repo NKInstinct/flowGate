@@ -21,7 +21,6 @@
 #' @noRd
 #'
 preparePlot <- function(gs,
-                        filterId,
                         sample,
                         dims,
                         subset,
@@ -29,10 +28,6 @@ preparePlot <- function(gs,
                         coords,
                         regate,
                         overlayGates){
-  #Delete gate if regating-----------------------
-  if(regate == TRUE){
-    gs_pop_remove(gs, filterId)
-  }
   #Select only the one sample to plot------------
   sample.gs <- gs[[sample]]
   #generate the plot using the input params------
@@ -68,7 +63,8 @@ preparePlot <- function(gs,
   if(!is.null(overlayGates)){
     gg <- gg + geom_gate(overlayGates)
   }
-  gg <- as.ggplot(gg)
+  gg <- ggcyto::as.ggplot(gg)
+  return(gg)
 }
 
 
