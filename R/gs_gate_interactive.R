@@ -173,5 +173,5 @@ gs_gate_interactive <- function(gs,
             shiny::stopApp(gate)
         })
     }
-    shiny::shinyApp(ui, server)
+    shiny::runApp(shiny::shinyApp(ui, server))
 }
