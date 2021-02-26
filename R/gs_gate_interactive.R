@@ -170,7 +170,7 @@ gs_gate_interactive <- function(gs,
                                    vals$plot)
             gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
-            shiny::stopApp(gate)
+            shiny::stopApp(gs)
         })
     }
     shiny::runApp(shiny::shinyApp(ui, server))
