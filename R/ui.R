@@ -20,6 +20,8 @@ ui <- shiny::fluidPage(
     ),
     # Main panel for displaying outputs ----------------------------------
     shiny::mainPanel(
+      shiny::textOutput("filterId"),
+      shiny::textOutput("subset"),
       shiny::plotOutput("plot1",
                         height="auto",
                         # width="500px",

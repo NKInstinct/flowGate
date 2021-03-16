@@ -122,7 +122,8 @@ gs_gate_interactive <- function(gs,
         vals <- shiny::reactiveValues(
             plot = preparePlot(gs, sample, dims, subset, bins,
                                coords, regate, overlayGates),
-            coords = data.frame("x" = numeric(), "y" = numeric())
+            coords = data.frame("x" = numeric(), "y" = numeric()),
+            gateInfo = list(filterId, subset)
         )
         output$plot1 <- shiny::renderPlot({
             vals$plot
@@ -131,6 +132,12 @@ gs_gate_interactive <- function(gs,
             session$clientData$output_plot1_width
         }
         )
+        output$filterId <- shiny::renderText({paste("Gate Name: ",
+                                                   vals$gateInfo[[1]],
+                                                   sep = "")})
+        output$subset <- shiny::renderText({paste("subset of: ",
+                                                  vals$gateInfo[[2]],
+                                                  sep = "")})
         #Brush Gates ---------------------------------------------------
         shiny::observeEvent(input$plot1_brush, {
             if(input$gateType %in% c("rectangleGate", "spanGate")){
