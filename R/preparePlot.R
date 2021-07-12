@@ -69,10 +69,12 @@ preparePlot <- function(gs,
 
 
 theme_flowGate <- theme_gray() +
-  theme(axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.line = element_blank(),
-        axis.ticks = element_blank(),
-        title = element_blank(),
-        strip.background = element_blank(),
-        strip.text = element_blank())
+  theme(
+    # axis.title = element_blank(),
+    # axis.text = element_blank(),
+    # axis.line = element_blank(),
+    # axis.ticks = element_blank(),
+    # title = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_blank()
+  )
