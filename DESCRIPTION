@@ -20,7 +20,7 @@ Description: flowGate adds an interactive Shiny app to allow manual
     analysis, without necessarily having a lot of R experience.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Imports:
     shiny (>= 1.5.0),
     BiocManager (>= 1.30.10),
@@ -33,7 +33,7 @@ Imports:
 Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),
-    R (>= 4.0)
+    R (>= 4.1)
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,

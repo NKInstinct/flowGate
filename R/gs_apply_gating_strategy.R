@@ -85,7 +85,7 @@ gs_apply_gating_strategy <- function(gs,
                                      mode = "individual",
                                      reference_sample = 1,
                                      ...){
-  if(class(gs) == "GatingSet"){
+  if(is(gs, "GatingSet")){
 
     purrr::pwalk(gating_strategy, flowGate::gs_gate_interactive, gs = gs, ...)
   } else if(is.list(gs)){
