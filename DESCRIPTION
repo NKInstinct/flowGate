@@ -29,7 +29,8 @@ Imports:
     ggplot2 (>= 3.3.2),
     rlang (>= 0.4.7),
     purrr,
-    tibble
+    tibble,
+    methods
 Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),

@@ -861,59 +861,6 @@ strategy <- tibble::tribble(
 gs_apply_gating_strategy(gs, gating_strategy = strategy, bins = 64)
 ```
 
-## Working with multiple GatingSets
-
-The other useful thing that `gs_apply_gating_strategy` does for you is make it
-easy to work with multiple related GatingSets at once. To do this, all you need
-to do is pass it a list of GatingSets (instead of a single one), and then tell
-it whether you want to gate on each GatingSet in the list individually, or if
-you want to gate on a reference set and then apply those gates to each other
-member of the list.
-
-#### Individual Mode
-
-If you are working individually, `gs_apply_gating_strategy` will ask you to draw
-all the gates in the strategy on the first GatingSet, then all the gates in the
-strategy in the second GatingSet, and so on until you have drawn all the gates
-on all the sets. For example, if we had a list of four GatingSets and wanted to
-apply the above gating strategy to all of them, we would draw twelve gates
-manually (first "Leukocytes", then "CD45", then "CD33 CD15" on the first
-GatingSet, then these three on the second GatingSet, and so on). The code to do
-that would look something like this:
-
-```{r eval=FALSE}
-
-gsList <- list(gs1, gs2, gs3, gs4)
-
-gs_apply_gating_strategy(gs = gsList, 
-                         gating_strategy = strategy, 
-                         mode = "individual")
-```
-
-#### Reference Mode
-
-Individual mode is useful if the different GatingSets you are working with come
-from different experiment days or different organs, where the overall patterns
-in the data are expected to be the same but the actual coordinates of the gates
-might move around a little. More commonly, however, you will want to apply the
-exact same gates to each GatingSet in your list. To do that, you set the mode to
-"reference", and then optionally supply a number to indicate which of the
-GatingSets in the list is your reference set (if you don't supply the number,
-the function will just use the first set). Running the above example in
-reference mode would have you draw three gates ("Leukocytes", "CD45", and "CD33
-CD15") on your reference sample, and then apply those gates to each GatingSet in
-the list.
-
-```{r eval=FALSE}
-
-gsList <- list(gs1, gs2, gs3, gs4)
-
-gs_apply_gating_strategy(gs = gsList, 
-                         gating_strategy = strategy, 
-                         mode = "reference",
-                         reference_sample = 1)
-```
-
 # Data Export---Images and Summary Statistics
 
 Now that we have gated on our samples, the last step is to have a look at the
