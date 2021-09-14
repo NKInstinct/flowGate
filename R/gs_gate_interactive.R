@@ -195,6 +195,7 @@ gs_gate_interactive <- function(gs,
             vals$plot <- preparePlot(gs, sample, dims, subset, bins,
                                     coords, regate, overlayGates)
         })
+        
         # Apply gate and close ------------------------------------------
         shiny::observeEvent(input$done, {
             gate <- applyGateClose(vals$coords,
@@ -203,7 +204,21 @@ gs_gate_interactive <- function(gs,
                                    shiny::isolate(FPlot()))
             gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
-            shiny::stopApp(gs)
+            output <- list("Gate" = gate,
+                           "scaling" = data.frame(
+                               "Parameters" = c("Max Value",
+                                                "Width Basis",
+                                                "Positive Decades",
+                                                "Extra Negative Decades"),
+                               "X" = c(input$xMaxVal,
+                                       input$xWidth,
+                                       input$xPos,
+                                       input$xNeg),
+                               "Y" = c(input$yMaxVal,
+                                       input$yWidth,
+                                       input$yPos,
+                                       input$yNeg)))
+            shiny::stopApp(output)
         })
     }
     shiny::runApp(shiny::shinyApp(ui, server))
