@@ -17,6 +17,23 @@ ui <- shiny::fluidPage(
                             "Span" = "spanGate",
                             "Quadrant" = "quadGate"),
                           selected = "rectangleGate"),
+      shiny::checkboxInput("useBiex", "Use FlowJo Biex?"),
+      shiny::sliderInput("xMaxVal", "X Max Value",
+                         min = -1000, max = 250000, value = 50000),
+      shiny::sliderInput("xWidth", "X Width Basis",
+                         min = -1000, max = -1, value = -1),
+      shiny::sliderInput("xNeg", "X Extra Negative Decades",
+                         min = 0, max = 1, value = 0),
+      shiny::sliderInput("xPos", "X Positive Decades",
+                         min = 2, max = 7, value = 4),
+      shiny::sliderInput("yMaxVal", "Y Max Value",
+                         min = -1000, max = 250000, value = 50000),
+      shiny::sliderInput("yWidth", "Y Width Basis",
+                         min = -1000, max = -1, value = -1),
+      shiny::sliderInput("yNeg", "Y Extra Negative Decades",
+                         min = 0, max = 1, value = 0),
+      shiny::sliderInput("yPos", "Y Positive Decades",
+                         min = 2, max = 7, value = 4)
     ),
     # Main panel for displaying outputs ----------------------------------
     shiny::mainPanel(

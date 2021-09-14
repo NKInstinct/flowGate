@@ -125,8 +125,34 @@ gs_gate_interactive <- function(gs,
             coords = data.frame("x" = numeric(), "y" = numeric()),
             gateInfo = list(filterId, subset)
         )
-        output$plot1 <- shiny::renderPlot({
+        
+        FPlot <- shiny::reactive(if(input$useBiex == TRUE){
+            if(length(dims) == 1){
+               vals$plot +
+                                             ggcyto::scale_x_flowjo_biexp(
+                                                 maxValue = input$xMaxVal,
+                                                 widthBasis = input$xWidth,
+                                                 pos = input$xPos,
+                                                 neg = input$xNeg)
+            } else if(length(dims) > 1){
+                vals$plot +
+                                             ggcyto::scale_x_flowjo_biexp(
+                                                 maxValue = input$xMaxVal,
+                                                 widthBasis = input$xWidth,
+                                                 pos = input$xPos,
+                                                 neg = input$xNeg) +
+                                             ggcyto::scale_y_flowjo_biexp(
+                                                 maxValue = input$yMaxVal,
+                                                 widthBasis = input$yWidth,
+                                                 pos = input$yPos,
+                                                 neg = input$yNeg)
+            }
+        } else{
             vals$plot
+        })
+        
+        output$plot1 <- shiny::renderPlot({
+            FPlot()
         },
         height = function() {
             session$clientData$output_plot1_width
@@ -167,14 +193,14 @@ gs_gate_interactive <- function(gs,
         shiny::observeEvent(input$reset, {
             vals$coords <- data.frame("x" = numeric(), "y" = numeric())
             vals$plot <- preparePlot(gs, sample, dims, subset, bins,
-                                     coords, regate, overlayGates)
+                                    coords, regate, overlayGates)
         })
         # Apply gate and close ------------------------------------------
         shiny::observeEvent(input$done, {
             gate <- applyGateClose(vals$coords,
                                    input$gateType,
                                    filterId,
-                                   vals$plot)
+                                   shiny::isolate(FPlot()))
             gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
             shiny::stopApp(gs)
