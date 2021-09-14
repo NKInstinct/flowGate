@@ -120,13 +120,14 @@ gs_gate_interactive <- function(gs,
 
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(
-            plot = preparePlot(gs, sample, dims, subset, bins,
+            plot = preparePlot(gs, sample, dims, subset, shiny::isolate(input$bins),
                                coords, regate, overlayGates),
             coords = data.frame("x" = numeric(), "y" = numeric()),
             gateInfo = list(filterId, subset)
         )
         
         FPlot <- shiny::reactive(if(input$useBiex == TRUE){
+            suppressMessages(
             if(length(dims) == 1){
                vals$plot +
                                              ggcyto::scale_x_flowjo_biexp(
@@ -146,7 +147,7 @@ gs_gate_interactive <- function(gs,
                                                  widthBasis = input$yWidth,
                                                  pos = input$yPos,
                                                  neg = input$yNeg)
-            }
+            })
         } else{
             vals$plot
         })
@@ -192,7 +193,7 @@ gs_gate_interactive <- function(gs,
         # Reset all points ----------------------------------------------
         shiny::observeEvent(input$reset, {
             vals$coords <- data.frame("x" = numeric(), "y" = numeric())
-            vals$plot <- preparePlot(gs, sample, dims, subset, bins,
+            vals$plot <- preparePlot(gs, sample, dims, subset, shiny::isolate(input$bins),
                                     coords, regate, overlayGates)
         })
         
@@ -205,19 +206,23 @@ gs_gate_interactive <- function(gs,
             gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
             output <- list("Gate" = gate,
-                           "scaling" = data.frame(
-                               "Parameters" = c("Max Value",
-                                                "Width Basis",
-                                                "Positive Decades",
-                                                "Extra Negative Decades"),
-                               "X" = c(input$xMaxVal,
-                                       input$xWidth,
-                                       input$xPos,
-                                       input$xNeg),
-                               "Y" = c(input$yMaxVal,
-                                       input$yWidth,
-                                       input$yPos,
-                                       input$yNeg)))
+                           "Bins" = input$bins,
+                           "Scaling" = ifelse(input$useBiex,
+                                              data.frame(
+                                                  "Parameters" = c(
+                                                      "Max Value",
+                                                      "Width Basis",
+                                                      "Positive Decades",
+                                                      "Extra Negative Decades"),
+                                                  "X" = c(input$xMaxVal,
+                                                          input$xWidth,
+                                                          input$xPos,
+                                                          input$xNeg),
+                                                  "Y" = c(input$yMaxVal,
+                                                          input$yWidth,
+                                                          input$yPos,
+                                                          input$yNeg)),
+                                              "Unused"))
             shiny::stopApp(output)
         })
     }

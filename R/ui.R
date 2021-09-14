@@ -7,9 +7,11 @@ ui <- shiny::fluidPage(
     shiny::sidebarPanel(
       # clear button - only actually needed for the click ones, not
       # the brush ones
-      shiny::actionButton("reset", "Clear"),
+      shiny::actionButton("reset", "Reset"),
       # done button
       shiny::actionButton("done", "Done"),
+      shiny::sliderInput("bins", "Bins",
+                         min = 2, max = 2048, value = 256),
 
       shiny::radioButtons("gateType", "Gate Type:",
                           c("Rectangle" = "rectangleGate",
