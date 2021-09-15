@@ -61,7 +61,7 @@ gs_apply_gating_strategy <- function(gs,
                                      ...){
   if(methods::is(gs, "GatingSet")){
 
-    purrr::pwalk(gating_strategy, flowGate::gs_gate_interactive, gs = gs, ...)
+    purrr::pmap(gating_strategy, flowGate::gs_gate_interactive, gs = gs, ...)
   } else {
     stop("'gs' must be a GatingSet")
   }

@@ -100,6 +100,7 @@
 #' @importFrom ggplot2 scale_y_continuous geom_path geom_hex
 #' @importFrom ggplot2 theme element_blank coord_cartesian
 #' @importFrom rlang .data
+#' @importFrom shiny updateTabsetPanel reactive
 #'
 #'
 #' @export
