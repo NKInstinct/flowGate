@@ -26,8 +26,18 @@ preparePlot <- function(gs,
                         subset,
                         bins,
                         coords,
-                        regate,
-                        overlayGates){
+                        overlayGates,
+                        addGateType,
+                        addCoords,
+                        useBiex,
+                        x_max,
+                        x_wide,
+                        x_pos,
+                        x_neg,
+                        y_max,
+                        y_wide,
+                        y_pos,
+                        y_neg){
   #Select only the one sample to plot------------
   sample.gs <- gs[[sample]]
   #generate the plot using the input params------
@@ -62,6 +72,39 @@ preparePlot <- function(gs,
   }
   if(!is.null(overlayGates)){
     gg <- gg + geom_gate(overlayGates)
+  } 
+  
+  if(addGateType == "polygonGate"){
+    if(nrow(addCoords) > 1){
+      gg <- gg + 
+        geom_path(data = addCoords,
+                  aes(.data$x, .data$y),
+                  inherit.aes = FALSE)
+    }
+  }else if(addGateType == "quadGate"){
+    gg <- gg + 
+      ggplot2::geom_vline(xintercept = addCoords$X) +
+      ggplot2::geom_hline(yintercept = addCoords$Y)
+  }
+  
+  if(useBiex){
+    if(length(dims)==1){
+      gg <- gg + 
+        ggcyto::scale_x_flowjo_biexp(maxValue = x_max,
+                                     widthBasis = x_wide,
+                                     pos = x_pos,
+                                     neg = x_neg)
+    } else{
+      gg <- gg + 
+        ggcyto::scale_x_flowjo_biexp(maxValue = x_max,
+                                     widthBasis = x_wide,
+                                     pos = x_pos,
+                                     neg = x_neg) +
+        ggcyto::scale_y_flowjo_biexp(maxValue = y_max,
+                                     widthBasis = y_wide,
+                                     pos = y_pos,
+                                     neg = y_neg)
+    }
   }
   gg <- ggcyto::as.ggplot(gg)
   return(gg)
