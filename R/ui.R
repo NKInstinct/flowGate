@@ -46,7 +46,6 @@ ui <- shiny::fluidPage(
                         # width="500px",
                         click = "plot1_click",
                         brush = shiny::brushOpts(id = "plot1_brush")),
-      shiny::verbatimTextOutput("clickInfo")
     )
   )
 )
