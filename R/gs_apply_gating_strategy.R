@@ -65,6 +65,5 @@ gs_apply_gating_strategy <- function(gs,
   } else {
     stop("'gs' must be a GatingSet")
   }
-  return(gs)
 
 }
