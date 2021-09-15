@@ -23,9 +23,6 @@
 #'   sample from. For example, if you wanted to gate all live cells out of a
 #'   previously drawn "lymphocytes" gate, you would specify "lymphocytes" here.
 #'   Defaults to "root" (ungated).
-#' @param bins Numeric specifying the level of granularity needed for the gate.
-#'   Higher numbers result in smaller dots. Defaults to 256, and is ignored for
-#'   histograms.
 #' @param coords A length-2 list of minimum and maximum coordinates that passes
 #'   to coord_cartesian, in the format \code{list(x = c(0, 10), y = c(0, 10))}.
 #'   Defaults to \code{NULL} (data-driven coordinate system).
@@ -92,8 +89,9 @@
 #' # was used to draw the "Live cells" gate above. Overlays the "Live cells"
 #' # gate on top of this graph to aid in drawing the "Dead cells" gate.
 #'
-#' @return The GateSet object with a new gating applied and named as specified
-#'   in filterId. Also recalculates the GateSet.
+#' @return A list of the interactively-specified parameters, including the drawn
+#'   gate's coordinates, plot bins, and any flowjo biex coefs used to calculate
+#'   those transforms.
 #'
 #' @import flowWorkspace
 #' @import ggcyto
@@ -178,32 +176,38 @@ gs_gate_interactive <- function(gs,
             vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())
         })
         
+        # Prepare table of variables ------------------------------------
+        biexVars <- reactive(tibble::tibble(
+            "Parameters" = c(
+                "Max Value",
+                "Width Basis",
+                "Positive Decades",
+                "Extra Negative Decades"),
+            "X" = c(input$xMaxVal,
+                  input$xWidth,
+                  input$xPos,
+                  input$xNeg),
+            "Y" = c(input$yMaxVal,
+                  input$yWidth,
+                  input$yPos,
+                  input$yNeg)))
+        
         # Apply gate and close ------------------------------------------
         shiny::observeEvent(input$done, {
             gate <- applyGateClose(vals$gateCoords,
                                    input$gateType,
                                    filterId,
-                                   shiny::isolate(FPlot()))
+                                   FPlot())
             gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
+            if(input$useBiex){
+                biex <- biexVars()
+            }else{
+                biex <- "unused"
+            }
             output <- list("Gate" = gate,
                            "Bins" = input$bins,
-                           "Scaling" = ifelse(input$useBiex,
-                                              data.frame(
-                                                  "Parameters" = c(
-                                                      "Max Value",
-                                                      "Width Basis",
-                                                      "Positive Decades",
-                                                      "Extra Negative Decades"),
-                                                  "X" = c(input$xMaxVal,
-                                                          input$xWidth,
-                                                          input$xPos,
-                                                          input$xNeg),
-                                                  "Y" = c(input$yMaxVal,
-                                                          input$yWidth,
-                                                          input$yPos,
-                                                          input$yNeg)),
-                                              "Unused"))
+                           "Scaling" = biex)
             shiny::stopApp(output)
         })
     }

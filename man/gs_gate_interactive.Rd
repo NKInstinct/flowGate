@@ -10,7 +10,6 @@ gs_gate_interactive(
   sample = 1,
   dims = list("FSC-A", "SSC-A"),
   subset = "root",
-  bins = 256,
   coords = NULL,
   regate = FALSE,
   overlayGates = NULL
@@ -40,10 +39,6 @@ sample from. For example, if you wanted to gate all live cells out of a
 previously drawn "lymphocytes" gate, you would specify "lymphocytes" here.
 Defaults to "root" (ungated).}
 
-\item{bins}{Numeric specifying the level of granularity needed for the gate.
-Higher numbers result in smaller dots. Defaults to 256, and is ignored for
-histograms.}
-
 \item{coords}{A length-2 list of minimum and maximum coordinates that passes
 to coord_cartesian, in the format \code{list(x = c(0, 10), y = c(0, 10))}.
 Defaults to \code{NULL} (data-driven coordinate system).}
@@ -60,8 +55,9 @@ population, you can overlay the marker-low gate to aid in drawing a
 marker-high gate). Defaults to \code{NULL} (no overlaid gates).}
 }
 \value{
-The GateSet object with a new gating applied and named as specified
-  in filterId. Also recalculates the GateSet.
+A list of the interactively-specified parameters, including the drawn
+  gate's coordinates, plot bins, and any flowjo biex coefs used to calculate
+  those transforms.
 }
 \description{
 \code{gs_gate_interactive} opens a new graphical window where you can draw
