@@ -14,7 +14,14 @@
 #'
 #' @noRd
 #'
-coordBrush <- function(brush, gateType){
+coordBrush <- function(brush, gateType, useBiex, transX, transY){
+  if(useBiex){
+    brush$xmin <- transX(brush$xmin)
+    brush$xmax <- transX(brush$xmax)
+    brush$ymin <- transY(brush$ymin)
+    brush$ymax <- transY(brush$ymax)
+  }
+  
   if(gateType == "rectangleGate"){
     res <- list("X" = c(brush$xmin, brush$xmax),
                    "Y" = c(brush$ymin, brush$ymax))
@@ -24,7 +31,13 @@ coordBrush <- function(brush, gateType){
   return(res)
 }
 
-coordClick <- function(click, gateType){
+coordClick <- function(click, gateType, useBiex, transX, transY){
+  
+  if(useBiex){
+    click$x <- transX(click$x)
+    click$y <- transY(click$y)
+  }
+  
   if(gateType == "polygonGate"){
     res <- data.frame("x" = click$x,
                       "y" = click$y)

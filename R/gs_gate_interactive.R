@@ -119,10 +119,7 @@ gs_gate_interactive <- function(gs,
 
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(
-            # plot = preparePlot(gs, sample, dims, subset, shiny::isolate(input$bins),
-            #                    coords, regate, overlayGates),
-            gateCoords = data.frame("x" = numeric(), "y" = numeric()),
-            gateInfo = list(filterId, subset)
+            gateCoords = data.frame("x" = numeric(), "y" = numeric())
         )
         
         FPlot <- reactive(preparePlot(gs, sample, dims, subset, input$bins, 
@@ -132,35 +129,6 @@ gs_gate_interactive <- function(gs,
                                       input$xNeg, input$yMaxVal, input$yWidth,
                                       input$yPos, input$yNeg))
         
-        # shiny::observeEvent(input$useBiex, {
-        #     if(input$useBiex == TRUE){
-        #         suppressMessages(
-        #         if(length(dims == 1)){
-        #             vals$plot <- vals$plot + 
-        #                 ggcyto::scale_x_flowjo_biexp(
-        #                     maxValue = input$xMaxVal,
-        #                     widthBasis = input$xWidth,
-        #                     pos = input$xPos,
-        #                     neg = input$xNeg)
-        #         }else{
-        #             vals$plot <- vals$plot + 
-        #                 ggcyto::scale_x_flowjo_biexp(
-        #                     maxValue = input$xMaxVal,
-        #                     widthBasis = input$xWidth,
-        #                     pos = input$xPos,
-        #                     neg = input$xNeg) +
-        #                 ggcyto::scale_y_flowjo_biexp(
-        #                     maxValue = input$yMaxVal,
-        #                     widthBasis = input$yWidth,
-        #                     pos = input$yPos,
-        #                     neg = input$yNeg)
-        #         })
-        #     }else{
-        #         vals$plot <- preparePlot(gs, sample, dims, subset, shiny::isolate(input$bins),
-        #                                  coords, regate, overlayGates)
-        #     }
-        # })
-        
         output$plot1 <- shiny::renderPlot(
             FPlot(),
             height = function() {
@@ -169,27 +137,42 @@ gs_gate_interactive <- function(gs,
         )
         
         output$filterId <- shiny::renderText({paste("Gate Name: ",
-                                                    vals$gateInfo[[1]],
+                                                    filterId,
                                                     sep = "")})
         output$subset <- shiny::renderText({paste("subset of: ",
-                                                  vals$gateInfo[[2]],
+                                                  subset,
                                                   sep = "")})
         #Brush Gates ---------------------------------------------------
         shiny::observeEvent(input$plot1_brush, {
             if(input$gateType %in% c("rectangleGate", "spanGate")){
                 vals$gateCoords <- coordBrush(input$plot1_brush,
-                                              input$gateType)
+                                              input$gateType,
+                                              input$useBiex,
+                                              transX(),
+                                              transY())
             }
         })
-        #Click Gates ---------------------------------------------------
+       
+        transX <- reactive(flowjo_biexp(maxValue = input$xMaxVal,
+                                        pos = input$xPos, neg = input$xNeg,
+                                        widthBasis = input$xWidth,
+                                        inverse = TRUE))
+        transY <- reactive(flowjo_biexp(maxValue = input$yMaxVal,
+                                        pos = input$yPos, neg = input$yNeg,
+                                        widthBasis = input$yWidth,
+                                        inverse = TRUE))
+        
         shiny::observeEvent(input$plot1_click, {
             if(input$gateType == "polygonGate"){
-                res <- coordClick(input$plot1_click, input$gateType)
+                res <- coordClick(input$plot1_click, input$gateType,
+                                  input$useBiex, transX(), transY())
                 vals$gateCoords <- dplyr::bind_rows(vals$gateCoords, res)
             }else if(input$gateType == "quadGate"){
-                vals$gateCoords <- coordClick(input$plot1_click, input$gateType)
+                vals$gateCoords <- coordClick(input$plot1_click, input$gateType,
+                                              input$useBiex, transX(), transY())
             }
         })
+        
         # Reset all points ----------------------------------------------
         shiny::observeEvent(input$reset, {
             vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())

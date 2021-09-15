@@ -20,24 +20,9 @@
 #' @return A ggplot object ready to pass into the shiny app.
 #' @noRd
 #'
-preparePlot <- function(gs,
-                        sample,
-                        dims,
-                        subset,
-                        bins,
-                        coords,
-                        overlayGates,
-                        addGateType,
-                        addCoords,
-                        useBiex,
-                        x_max,
-                        x_wide,
-                        x_pos,
-                        x_neg,
-                        y_max,
-                        y_wide,
-                        y_pos,
-                        y_neg){
+preparePlot <- function(gs, sample, dims, subset, bins, coords, overlayGates,
+                        addGateType, addCoords, useBiex, x_max, x_wide, x_pos,
+                        x_neg, y_max, y_wide, y_pos, y_neg){
   #Select only the one sample to plot------------
   sample.gs <- gs[[sample]]
   #generate the plot using the input params------
@@ -75,7 +60,7 @@ preparePlot <- function(gs,
   } 
   
   if(addGateType == "polygonGate"){
-    if(nrow(addCoords) > 1){
+    if(!is.null(addCoords) & nrow(addCoords) > 1){
       gg <- gg + 
         geom_path(data = addCoords,
                   aes(.data$x, .data$y),
@@ -88,6 +73,7 @@ preparePlot <- function(gs,
   }
   
   if(useBiex){
+    suppressMessages(
     if(length(dims)==1){
       gg <- gg + 
         ggcyto::scale_x_flowjo_biexp(maxValue = x_max,
@@ -104,7 +90,7 @@ preparePlot <- function(gs,
                                      widthBasis = y_wide,
                                      pos = y_pos,
                                      neg = y_neg)
-    }
+    })
   }
   gg <- ggcyto::as.ggplot(gg)
   return(gg)
