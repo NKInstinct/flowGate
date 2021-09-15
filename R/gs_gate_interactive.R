@@ -120,6 +120,14 @@ gs_gate_interactive <- function(gs,
             gateCoords = data.frame("x" = numeric(), "y" = numeric())
         )
         
+        shiny::observeEvent(input$useBiex, {
+            if(input$useBiex){
+                updateTabsetPanel(inputId = "biexTab", selected = "biexPanel")
+            }else{
+                updateTabsetPanel(inputId = "biexTab", selected = "blankPanel")
+            }
+        })
+        
         FPlot <- reactive(preparePlot(gs, sample, dims, subset, input$bins, 
                                       coords, overlayGates, input$gateType, 
                                       vals$gateCoords, input$useBiex, 
