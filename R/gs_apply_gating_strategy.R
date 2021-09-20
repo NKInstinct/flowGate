@@ -46,15 +46,11 @@
 #' )
 #'
 #'
-#' if(interactive()){ # only run in interactive sessions.
+#' if(interactive()){
 #' gs_apply_gating_strategy(gs,
 #' gating_strategy = gating_strategy,
 #' bins = 512) # note that extra args for gs_gate_interactive can be supplied.
 #' }
-#'
-#'
-#'
-#'
 #' @export
 gs_apply_gating_strategy <- function(gs, gating_strategy, ...){
     if(methods::is(gs, "GatingSet")){
