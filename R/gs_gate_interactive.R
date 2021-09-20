@@ -105,61 +105,23 @@
 #'
 #' @export
 #'
-gs_gate_interactive <- function(gs,
-                                filterId,
-                                sample = 1,
-                                dims = list("FSC-A", "SSC-A"),
-                                subset = "root",
-                                coords = NULL,
-                                regate = FALSE,
+gs_gate_interactive <- function(gs, filterId, sample = 1,
+                                dims = list("FSC-A", "SSC-A"), subset = "root",
+                                coords = NULL, regate = FALSE, 
                                 overlayGates = NULL){
-    # Delete gate if regating
+    # Delete gate if regating --------------------------------------------------
     if(regate == TRUE){gs_pop_remove(gs, filterId)}
-
+    # Server Function ==========================================================
     server <- function(input, output, session) {
-        vals <- shiny::reactiveValues(
-            gateCoords = data.frame("x" = numeric(), "y" = numeric())
-        )
-        
+        vals <- shiny::reactiveValues( gateCoords = data.frame("x" = numeric(), 
+                                                               "y" = numeric()))
+        # Biex Handling --------------------------------------------------------
         shiny::observeEvent(input$useBiex, {
             if(input$useBiex){
                 updateTabsetPanel(inputId = "biexTab", selected = "biexPanel")
             }else{
                 updateTabsetPanel(inputId = "biexTab", selected = "blankPanel")
-            }
-        })
-        
-        FPlot <- reactive(preparePlot(gs, sample, dims, subset, input$bins, 
-                                      coords, overlayGates, input$gateType, 
-                                      vals$gateCoords, input$useBiex, 
-                                      input$xMaxVal, input$xWidth, input$xPos,
-                                      input$xNeg, input$yMaxVal, input$yWidth,
-                                      input$yPos, input$yNeg))
-        
-        output$plot1 <- shiny::renderPlot(
-            FPlot(),
-            height = function() {
-                session$clientData$output_plot1_width
-            }
-        )
-        
-        output$filterId <- shiny::renderText({paste("Gate Name: ",
-                                                    filterId,
-                                                    sep = "")})
-        output$subset <- shiny::renderText({paste("subset of: ",
-                                                  subset,
-                                                  sep = "")})
-        #Brush Gates ---------------------------------------------------
-        shiny::observeEvent(input$plot1_brush, {
-            if(input$gateType %in% c("rectangleGate", "spanGate")){
-                vals$gateCoords <- coordBrush(input$plot1_brush,
-                                              input$gateType,
-                                              input$useBiex,
-                                              transX(),
-                                              transY())
-            }
-        })
-       
+            }})
         transX <- reactive(flowjo_biexp(maxValue = input$xMaxVal,
                                         pos = input$xPos, neg = input$xNeg,
                                         widthBasis = input$xWidth,
@@ -168,7 +130,26 @@ gs_gate_interactive <- function(gs,
                                         pos = input$yPos, neg = input$yNeg,
                                         widthBasis = input$yWidth,
                                         inverse = TRUE))
-        
+        # Prepare main panel plot ----------------------------------------------
+        FPlot <- reactive(preparePlot(gs, sample, dims, subset, input$bins, 
+                                      coords, overlayGates, input$gateType, 
+                                      vals$gateCoords, input$useBiex, 
+                                      input$xMaxVal, input$xWidth, input$xPos,
+                                      input$xNeg, input$yMaxVal, input$yWidth,
+                                      input$yPos, input$yNeg))
+        output$plot1 <- shiny::renderPlot(FPlot(), height = function() {
+                session$clientData$output_plot1_width
+            })
+        output$filterId <- shiny::renderText({paste("Gate Name: ", filterId,
+                                                    sep = "")})
+        output$subset <- shiny::renderText({paste("subset of: ", subset,
+                                                  sep = "")})
+        # Gate Handling --------------------------------------------------------
+        shiny::observeEvent(input$plot1_brush, {
+            if(input$gateType %in% c("rectangleGate", "spanGate")){
+                vals$gateCoords <- coordBrush(input$plot1_brush, input$gateType,
+                                              input$useBiex, transX(), transY())
+                }})
         shiny::observeEvent(input$plot1_click, {
             if(input$gateType == "polygonGate"){
                 res <- coordClick(input$plot1_click, input$gateType,
@@ -177,46 +158,25 @@ gs_gate_interactive <- function(gs,
             }else if(input$gateType == "quadGate"){
                 vals$gateCoords <- coordClick(input$plot1_click, input$gateType,
                                               input$useBiex, transX(), transY())
-            }
-        })
-        
-        # Reset all points ----------------------------------------------
+            }})
         shiny::observeEvent(input$reset, {
-            vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())
-        })
-        
-        # Prepare table of variables ------------------------------------
-        biexVars <- reactive(tibble::tibble(
-            "Parameters" = c(
-                "Max Value",
-                "Width Basis",
-                "Positive Decades",
-                "Extra Negative Decades"),
-            "X" = c(input$xMaxVal,
-                  input$xWidth,
-                  input$xPos,
-                  input$xNeg),
-            "Y" = c(input$yMaxVal,
-                  input$yWidth,
-                  input$yPos,
-                  input$yNeg)))
-        
-        # Apply gate and close ------------------------------------------
+            vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())})
+        # Apply gate and close -------------------------------------------------
         shiny::observeEvent(input$done, {
-            gate <- applyGateClose(vals$gateCoords,
-                                   input$gateType,
-                                   filterId,
+            gate <- applyGateClose(vals$gateCoords, input$gateType, filterId,
                                    FPlot())
             gs_pop_add(gs, gate, parent = subset)
             recompute(gs)
-            if(input$useBiex){
-                biex <- biexVars()
-            }else{
-                biex <- "unused"
+            biexVars <- list(X = list(maxValue = input$xMaxVal, 
+                                        widthBasis = input$xWidth,
+                                        pos = input$xPos, neg = input$xNeg),
+                             Y = list(maxValue = input$yMaxVal,
+                                        widthBasis = input$yWidth,
+                                        pos = input$yPos, neg = input$yNeg))
+            if(input$useBiex){biex <- biexVars
+            }else{biex <- "unused"
             }
-            output <- list("Gate" = gate,
-                           "Bins" = input$bins,
-                           "Scaling" = biex)
+            output <- list("Gate" = gate, "Bins" = input$bins, "Scaling" = biex)
             shiny::stopApp(output)
         })
     }
