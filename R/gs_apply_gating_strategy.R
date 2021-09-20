@@ -30,13 +30,13 @@
 #'
 #' @examples
 #'
-#' fs <- flowCore::read.flowSet(path = system.file("extdata", package = "flowGate"),
-#'                              pattern = ".FCS$")
+#' fs <- flowCore::read.flowSet(
+#'   path = system.file("extdata", package = "flowGate"), pattern = ".FCS$")
 #'
 #' gs <- flowWorkspace::GatingSet(fs)
 #'
-#' # Note - this is a very rudamentary GatingSet for example purposes only. Please
-#' # see the vignette accompanying this package or the flowWorkspace
+#' # Note - this is a very rudamentary GatingSet for example purposes only. 
+#' # Please see the vignette accompanying this package or the flowWorkspace
 #' # documentation # for a complete look at creating a GatingSet.
 #'
 #' gating_strategy <- tibble::tribble(
@@ -56,14 +56,11 @@
 #'
 #'
 #' @export
-gs_apply_gating_strategy <- function(gs,
-                                     gating_strategy,
-                                     ...){
-  if(methods::is(gs, "GatingSet")){
-
-    purrr::pmap(gating_strategy, flowGate::gs_gate_interactive, gs = gs, ...)
-  } else {
-    stop("'gs' must be a GatingSet")
-  }
-
+gs_apply_gating_strategy <- function(gs, gating_strategy, ...){
+    if(methods::is(gs, "GatingSet")){
+        purrr::pmap(gating_strategy, 
+                    flowGate::gs_gate_interactive, gs = gs, ...)
+    } else {
+        stop("'gs' must be a GatingSet")
+    }
 }

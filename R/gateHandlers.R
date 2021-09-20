@@ -15,35 +15,41 @@
 #' @noRd
 #'
 coordBrush <- function(brush, gateType, useBiex, transX, transY){
-  if(useBiex){
-    brush$xmin <- transX(brush$xmin)
-    brush$xmax <- transX(brush$xmax)
-    brush$ymin <- transY(brush$ymin)
-    brush$ymax <- transY(brush$ymax)
-  }
+    if(useBiex){
+        brush$xmin <- transX(brush$xmin)
+        brush$xmax <- transX(brush$xmax)
+        brush$ymin <- transY(brush$ymin)
+        brush$ymax <- transY(brush$ymax)
+    }
   
-  if(gateType == "rectangleGate"){
-    res <- list("X" = c(brush$xmin, brush$xmax),
-                   "Y" = c(brush$ymin, brush$ymax))
-  } else if(gateType == "spanGate"){
-    res <- list("X" = c(brush$xmin, brush$xmax))
-  }
-  return(res)
+    if(gateType == "rectangleGate"){
+        res <- list(
+            "X" = c(brush$xmin, brush$xmax), "Y" = c(brush$ymin, brush$ymax))
+    } else if(gateType == "spanGate"){
+        res <- list("X" = c(brush$xmin, brush$xmax))
+    }
+    return(res)
 }
 
 coordClick <- function(click, gateType, useBiex, transX, transY){
-  
-  if(useBiex){
-    click$x <- transX(click$x)
-    click$y <- transY(click$y)
-  }
-  
-  if(gateType == "polygonGate"){
-    res <- data.frame("x" = click$x,
-                      "y" = click$y)
-  } else if(gateType == "quadGate"){
-    res <- list("X" = click$x,
-                "Y" = click$y)
-  }
-  return(res)
+    if(useBiex){
+        click$x <- transX(click$x)
+        click$y <- transY(click$y)
+    }
+    if(gateType == "polygonGate"){
+        res <- data.frame("x" = click$x, "y" = click$y)
+    } else if(gateType == "quadGate"){
+        res <- list("X" = click$x, "Y" = click$y)
+    }
+    return(res)
+}
+
+gateHandler <- function(gateType, brush, click, biex, tX, tY, append){
+    switch(gateType,
+            rectangleGate = ,
+            spanGate = coordBrush(brush, gateType, biex, tX, tY),
+            quadGate = coordClick(click, gateType, biex, tX, tY),
+            polygonGate = dplyr::bind_rows(
+                append, coordClick(click, gateType, biex, tX, tY)),
+            stop("Invalid gate type"))
 }
