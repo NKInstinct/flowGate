@@ -19,49 +19,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Abstract
-
-It has been possible for several years now to store, analyze, graph, and
-summarize flow cytometry data using free and open source software thanks to the
-R statistical programming language and cytometry-based packages hosted in
-BioConductor. Unfortunately, despite the obvious benefits of a free and open
-source cytometry platform with a large existing support base and simple
-integration with thousands of cutting edge packages and analytical advancements,
-few cytometerists have adopted R as a complete flow cytometry analysis solution.
-We believe that this is because drawing gates, a central task in flow cytometry
-analysis, is still extremely cumbersome in R. Currently, gates must either be
-automatically derived by unfamiliar computer models or specified by manually
-typing point-by-point x-y coordintates for each gate. In this vignette, we
-describe flowGate, a new package that provides a simple and familiar graphical
-interface to R that allows gating by drawing gates on top of flow plots. We
-believe this is the missing piece that will allow even a relative newcomer to R
-to quickly and confidently perform traditional cytometry analyses. This vignette
-works through a simple flow analysis workflow in detail, beginning with package
-setup and data import, compensation, and transformation before displaying how to
-gate the data using flowGate, and then concludes with a simple example of how to
-produce professional-looking graphs and summary statistics from these gates.
-Some very basic experience with R is assumed, but this vignette is targeted
-toward a relative beginner and does not assume familiarity with other
-BioConductor packages or any previous attempts to analyze flow cytometry data in
-R.
-
 # Introduction
-
-The ability to analyze and manipulate flow cytometry data (in the form of .FCS
-files) from within the R statistical programming language is becoming
-increasingly relevant. With improved throughput of flow cytometers through
-readily available auto-sampling machines and increased complexity enabled by
-multi-parameter and spectral analyzers, there is a growing need for programmatic
-and open-source solutions that enable efficient and reproducible cytometry
-analysis. Moreover, recent advances in flow cytometry, such as the ability to
-integrate machine learning and conventional cytometry to allow a 16-colour
-cytometer to analyze hundreds of markers in a single sample (Infinity Flow by
-Becht et al., https://www.biorxiv.org/content/10.1101/2020.06.17.152926v1),
-require familiarity with analyzing cytometry data in R. Finally, analyzing
-cytometry data in a coding language enables more transparent and repeatable
-science, since it is possible to directly comment on each step of the analysis
-strategy and to employ version control software to track any changes to the
-analysis over time.
 
 There are currently two general strategies for working with cytometry data in R.
 The first is to perform the entire analysis from within the R coding
@@ -79,12 +37,12 @@ cytometry analysis software.
 The second strategy is to first perform compensation, transformation, and gating
 in FlowJo, and then import the resulting workspace object into R using the
 flowWorkspace package. This has the advantage of allowing cytometerists to work
-in a familiar way while still enabling the use of cutting-edge cytometry tools
-such as Infinity Flow. However, this approach lacks all of the other benefits
-that an R-native cytometry package would allow. In particular, it is dependent
-on expensive, closed-source software and does not allow for easy commenting and
-version control. Nevertheless, manual gating remains sufficiently difficult in R
-as to make this the method used.
+in a familiar way while still enabling the use of cutting-edge cytometry tools.
+However, this approach lacks all of the other benefits that an R-exclusive
+cytometry package would allow. In particular, it is dependent on expensive,
+closed-source software and does not allow for easy commenting and version
+control. Nevertheless, manual gating remains sufficiently difficult in R as to
+make this the more common method.
 
 flowGate was developed to fill in this missing ability for manual, GUI-based
 gating in R, finally enabling a familiar cytometry analysis pipeline completely
@@ -94,11 +52,10 @@ researcher who has never used R for flow cytometry analysis at all.
 
 # Setting up flowGate
 
-Prior to using flowGate, it must first be installed on your system. Because it
-is in active development and not yet submitted to BioConductor, you will need to
-install it directly from GitHub. Installing packages from GitHub is slightly
-more complex than installing normal R packages, so if you've never done it
-before, here are some steps to follow:
+Because flowGate is in active development and not yet submitted to BioConductor,
+you will need to install it directly from GitHub. Installing packages from
+GitHub is slightly more complex than installing normal R packages, so if you've
+never done it before, here are some steps to follow:
 
 
 1. Install RStudio (https://rstudio.com). flowGate uses the Shiny package to
@@ -151,13 +108,12 @@ devtools::install_github("NKInstinct/flowGate")
 # Preparing your cytometry data
 
 Before you can start drawing gates on your data, you need to read it into R and
-perform a few transformations on it (compensation and fluorescent channel
-transforms). If this seems a little complex, don't worry---it can be a bit much
-to wrap your head around the first time you do it, but once you know the options
-you would like to use, you can write them all into a single function and then
-use that for automatic data import and transformation in the future. We'll cover
-preparing just such a function at the end of this section in case you aren't
-sure how to do that.
+compensate it . If this seems a little complex, don't worry---it can be a bit
+much to wrap your head around the first time you do it, but once you know the
+options you would like to use, you can write them all into a single function and
+then use that for automatic data import and transformation in the future. We'll
+cover preparing just such a function at the end of this section in case you
+aren't sure how to do that.
 
 ## Assemble a flowSet from seperate .FCS files
 
@@ -182,7 +138,6 @@ current working directory, you could simply pass `path_to_fcs <- "~/Flow Data/"`
 and that would do the same thing.
 
 ```{r}
-
 fs <- read.flowSet(path = path_to_fcs,
                    pattern = ".FCS$",
                    full.names = TRUE)
@@ -207,7 +162,7 @@ enormous chunk of system RAM. It also has some benefits for keeping all your
 data and analyses together, which we'll touch on when we talk about saving gated
 cytometry data. For those reasons, I tend to prefer this NCDF approach for
 cytometry analysis, but it doesn't really matter which one you use, especially
-when just starting out (you can always change your mind later).
+when just starting out.
 
 ```{r use NCDF, eval = FALSE}
 # Not run for the purposes of the vignette
@@ -267,7 +222,7 @@ object instead of loading an external file.
 
 There are several places in a .FCS file where a compensation matrix can be
 stored. My Fortessa X20 stores it in the \$SPIL slot of a .FCS, but other
-cytometers likely behave differently. To find out where yours is, you need to
+cytometers may behave differently. To find out where yours is, you need to
 first call `spillover()` on one of the samples in your flowSet (__not the
 GatingSet!__), and then look at the output. One of the slots that gets returned
 to you will look like a compensation matrix---take note of which one that is and
@@ -311,64 +266,7 @@ some_new_gs <- compensate(some_new_gs, comp)
 It is also possible, using the flowCore package, to automatically create a
 compensation matrix from single colour control samples. Exactly how to do this
 is beyond the scope of this vignette, so you are encouraged to look into the
-flowCore vignettes for further instructions. In general, however, it is a bit of
-a pain to do, so if you know you are going to be using flowGate for your flow
-analysis, you are probably better off making sure you have an
-acquisition-defined compensation matrix or an external compensation matrix saved
-as a .csv before proceeding.
-
-## Transforming the fluorescent data
-
-The final step before analyzing the flow data is to apply a transformation to
-the fluorescent channels in the data. There are many different types of
-transformation available through flowCore, flowWorkspace, and others, but for
-this vignette we will stick with the biexponential transformation as implemented
-in FlowJo. To transform the data, we first create a transformation object, and
-then apply it to the GatingSet, much like we did with compensation. To do this,
-however, we need to know how many linear channels there are, so that we don't
-accidentally apply a biex transform to them as well.
-
-```{r Transform data 1}
-colnames(gs)
-```
-
-In this example dataset, there are three linear channels we don't want to
-transform: "FSC-H", "SSC-H", and "Time". With a small number of parameters like
-this, we can simply name them manually, like so:
-
-```{r Transform data 2}
-channels <- c("FL1-H", "FL2-H", "FL3-H", "FL2-A", "FL4-H")
-channels
-```
-
-However, if there were a lot of channels, or if we wanted to write a general
-function to handle any flow data in the future, it would be better to define
-this programmatically:
-
-```{r}
-channels <- colnames(gs)[!stringr::str_detect(colnames(gs),
-                                              "^FSC-.$|^SSC-.$|^Time$")]
-channels
-```
-
-If you haven't worked much with strings and regular expressions yet, check out
-the stringr package for more information on how that code works. Essentially, it
-is storing all of the colnames in our GatingSet object that do not follow the
-pattern of being "FSC-" or "SSC-" followed by a letter (so all of the different
-variants of forward and side scatter) or variables that are exactly named "Time"
-(rather than variables that contain the word "Time", which could potentially
-accidentally exclude some exotic protein names).
-
-Now that we have a list of all of our non-linear channels, we can transform
-them.
-
-```{r}
-transformation_object <- flowjo_biexp_trans()
-
-transformation_list <- transformerList(channels, transformation_object)
-
-gs <- transform(gs, transformation_list)
-```
+flowCore vignettes for further instructions.
 
 ## Putting it all together---create an import function
 
@@ -390,15 +288,6 @@ import_gs <- function(path, pattern, compensation_matrix){
   
   comp <- compensation(compensation_matrix)
   gs <- compensate(gs, comp)
-  
-  channels <- colnames(gs)[!stringr::str_detect(colnames(gs),
-                                                "^FSC-.$|^SSC-.$|^Time$")]
-  transformation_object <- flowjo_biexp_trans()
-  transformation_list <- transformerList(channels, 
-                                         transformation_object)
-  
-  gs <- transform(gs, 
-                  transformation_list)
   
   return(gs)
 }
@@ -432,6 +321,16 @@ This is a pretty basic function, and there's a lot more we could do to make it
 more useful for other experiments with slightly different conditions, but it's a
 good start for now and hopefully demonstrates that once you have the hang of it,
 importing cytometry data into R is neither difficult nor time consuming.
+
+## What about transforming the data?
+
+If you are used to working with flow data in R, you might be wondering why we
+haven't applied transforms (biex, arcsinh, etc) to the fluorescent channels of
+these data yet. flowGate is designed so that you can apply biexponential scaling
+to your flow data directly when gating, rather than at this import step, meaning
+you can set the biex parameters yourself while looking at the data. Note that in
+this way, the data are transformed at the _plotting_ level rather than the data
+level. We'll talk a little more about that later.
 
 # Interactive gating
 
@@ -475,17 +374,16 @@ p1 <- readRDS("p1Gate.Rds")
 gs_pop_add(gs, p1)
 recompute(gs)
 ```
+
 When you first run the gs_gate_interactive command, a window like this should
 appear
 
-```{r echo = FALSE, message = FALSE}
-library(cowplot)
+![An image of the flowGate window](ShinyWindow1.png)
 
-ggdraw() + draw_image("ShinyWindow1.png")
-```
 The sidebar on the left lets you decide what kind of gate you want to draw, and
 the main window in the middle shows a plot of your data that you can interact
-with.
+with. You can also set the number of bins with a slider to the left - more bins
+means the data will be plotted with higher resolution (more, smaller dots).
 
 To draw a gate, the first thing you need to do is pick what kind of gate you
 want to draw. It is very important that you pick the kind of gate you want to
@@ -495,9 +393,8 @@ errors.
 To select your leukocytes, switch the gating mode over to polygon by clicking on
 the polygon radio button
 
-```{r echo = FALSE}
-ggdraw() + draw_image("Window2switchtopolygon.png")
-```
+![A flowGate window with polygon selected](Window2switchtopolygon.png)
+
 Once you have clicked on the kind of gate you want, you can proceed to draw it.
 Polygon gates (like this one) are drawn by clicking multiple times to trace a
 polygon. Other gates are drawn differently (Rectangle and Span gates are drawn
@@ -506,9 +403,7 @@ once where the four quadrants meet).
 
 Go ahead and draw a polygon gate on your data.
 
-```{r echo = FALSE}
-ggdraw() + draw_image("Window2drawgate.png")
-```
+![A flowGate window with a polygon drawn on it](Window2drawgate.png)
 
 If you think you've mis-clicked and want to start over, just hit the "Clear"
 button on the top left and then start drawing your polygon again. Once you are
@@ -517,16 +412,25 @@ GatingSet.
 
 ### Other notes about gating
 
+When you are finished gating, R will return a list containing a few items that
+help you to re-create the gate you just drew. The first is the actual gate
+definition as a flowCore gate object. This will give you the filterID, the
+coordinates, gate type, and so on, and can be passed to other cytometry packages
+or added to other GatingSets like any gate. The second is the number of bins you
+chose to display the data as: this is useful if you want to exactly re-create
+the plot you gated on later. Finally, the third item in the list is the scaling
+parameters used in the gating. In this case, we didn't turn on any scaling since
+we were looking at linear data, so it should return "unused", but in a moment,
+we'll look at what that means more directly.
+
 If something goes wrong when you are drawing your gates (such as if you draw a
 polygon gate when you still have "rectangle gate" selected), the shiny app can
 hang. If you exit out of the shiny window without clicking on "done" first, or
 if you do click "done" but get some warnings or errors, it's a good idea to make
 sure that the shiny app isn't still running in the background. Have a look at
-your R Console window and see if there is a stop sign in the upper-right corner.
+your R Console window and see if there is a stop sign.
 
-```{r echo = FALSE, fig.height=3, fig.width=3}
-ggdraw() + draw_image("ShinyErrorHandling.png")
-```
+![A stop sign shown in the R Console tab](ShinyErrorHandling.png)
 
 If that button is there, it means that the shiny app is still running and you
 should stop it before proceeding. Trying to do anything else in R while the
@@ -586,16 +490,11 @@ gate", in this case Leukocytes). Running `gs_gate_interactive()` with these
 arguments will draw a histogram instead of a dot plot, but otherwise the window
 will look as before.
 
-```{r echo=FALSE}
-ggdraw() + draw_image("Histogram1.png")
-
-```
+![A flowGate window showing an histogram](Histogram1.png)
 
 Switch the gating mode over to "Span"
 
-```{r echo=FALSE}
-ggdraw() + draw_image("Histogram2.png")
-```
+![A flowGate window with Span selected](Histogram2.png)
 
 Then draw your gate. For span and rectangle gates, you draw them by clicking and
 dragging a rectangle on the plot. In fact, the only difference between span and
@@ -606,9 +505,7 @@ rectangle. This can be useful for drawing the gate exactly where you want it,
 since you can use the vertical dimensions to help line it up with your histogram
 peaks.
 
-```{r echo=FALSE}
-ggdraw() + draw_image("Histogram3.png")
-```
+![A flowGate window showing a span gate on top of an histogram](Histogram3.png)
 
 As before, when you are happy with the gate, click Done to close the window and
 apply the gate. Unlike with polygon and quadrant gates, you don't need to click
@@ -661,22 +558,46 @@ mis-click, you can click on Clear to reset your selection and then try again.
 gs_gate_interactive(gs[[1]],
                     filterId = "CD33 CD15",
                     dims = list("CD33", "CD15"),
-                    subset = "CD45",
-                    bins = 64) 
-# I set the bins lower because we have fewer cells after drilling down twice
+                    subset = "CD45") 
+
 ```
+
+![A flowGate window showing badly-scaled cells](Quad1.png)
+
+Note this time, however, the fact that we haven't transformed any fluorescent
+channels is really causing problems. Fortunately, you can click on the "use
+FlowJo Biex" checkbox to enable re-scaling this plot on a flowJo-style
+biexponential scale.
+
+![A flowGate window showing scaled cells](Quad2.png)
+
+This enables a number of extra sliders that allow you to set maximum values,
+biexponential widths, and extra positive and negative decades in real time.
+Adjust these sliders until your plot looks like something you can confidently
+draw a quadrant gate on.
+
+![A flowGate window showing scaled and gated cells](Quad3.png)
+
+
+
 ```{r echo = FALSE, message=FALSE}
 p3 <- readRDS("p3Gate.Rds")
 gs_pop_add(gs, p3, parent = "CD45")
 recompute(gs)
 ```
 
-As before, we can check the gate by plotting it with ggcyto
+As before, we can check the gate by plotting it with ggcyto. This time, however,
+we'll need to pass a flowJo biexponential scale to the plot as well, so it will
+look like the one above. This is done with the `scale_x_flowjo_biex` and
+`scale_y_flowjo_biex` commands. Note that you can use the output from
+gs_gate_interactive to copy the exact biex scaling params you just used.
 
 ```{r eval = FALSE}
 ggcyto(gs[[1]], aes("CD33", "CD15")) +
-  geom_hex(bins = 64) +
+  geom_hex(bins = 128) +
   geom_gate("CD33 CD15") +
+  scale_x_flowjo_biexp(maxValue = 252245, widthBasis = -29, pos = 4) +
+  scale_y_flowjo_biexp(maxValue = 250000, widthBasis = -12, pos = 5) +
   geom_stats()
 ```
 
@@ -700,13 +621,25 @@ plot. So to plot this quadrant gate, we need to specify all four of these gates.
 
 ```{r}
 ggcyto(gs[[1]], aes("CD33", "CD15")) +
-  geom_hex(bins = 64) +
+  geom_hex(bins = 128) +
+  scale_x_flowjo_biexp(maxValue = 252245, widthBasis = -29, pos = 4) +
+  scale_y_flowjo_biexp(maxValue = 250000, widthBasis = -12, pos = 5) +
   geom_gate(c("CD33 APC-CD15 FITC+",
               "CD33 APC+CD15 FITC+",
               "CD33 APC+CD15 FITC-",
               "CD33 APC-CD15 FITC-")) +
+  geom_hline(yintercept = 80.2426) +
+  geom_vline(xintercept = 97.42192) +
   geom_stats()
 ```
+
+(Note also that there is a slight bug in ggcyto where adding a flowjo_biex scale
+to the graph makes the quad gates not appear. Note that the gates still exist
+and still must be added to the plot in order to show their stats, but the gates
+themselves aren't drawn as they had been previously. As a work-around, you can
+add a horizontal and a vertical line with `geom_hline()` and `geom_vline()`, and
+can get the exact coordinates of their intercepts from the output of the
+gs_gate_interactive command's gate definition).
 
 If you are comfortable with the stringr package, you can also specify this a
 little more efficiently by first selecting all of the population paths that
@@ -717,8 +650,12 @@ quadgates <- gs_get_pop_paths(gs)[stringr::str_detect(gs_get_pop_paths(gs),
                                                       "CD33")]
 
 ggcyto(gs[[1]], aes("CD33", "CD15")) +
-  geom_hex(bins = 64) +
+  geom_hex(bins = 128) +
+  scale_x_flowjo_biexp(maxValue = 252245, widthBasis = -29, pos = 4) +
+  scale_y_flowjo_biexp(maxValue = 250000, widthBasis = -12, pos = 5) +
   geom_gate(quadgates) +
+  geom_hline(yintercept = 80.2426) +
+  geom_vline(xintercept = 97.42192) +
   geom_stats()
 ```
 
@@ -873,22 +810,18 @@ complete, basic cytometry analysis using only R.
 
 ## Plot data nicely
 
-In our above analysis, let's pretend that the final goal was to show whether
-CD33 and CD15 expression changes between the different samples. Since there's
-only three samples in the GatingSet, the best way to do this is just plot three
-dotplots showing each sample's CD33 and CD15 expression, gated with our quadrant
-gate. Fortunately, we already know how to do this. Remember how above, each time
-we plotted something, we specified that we only wanted the first sample in gs
-with `gs[[1]]`? All we need to do is not specify anything and ggcyto will plot
-all three graphs.
+Imagine we wanted to show the overall proportions of leukocytes, based on the
+very first gate we drew. Since there's only three samples in the GatingSet, the
+best way to do this is just plot three dotplots showing each sample's FSC-H and
+SSC-H, gated with our polygon gate. Fortunately, we already know how to do this.
+Remember how above, each time we plotted something, we specified that we only
+wanted the first sample in gs with `gs[[1]]`? All we need to do is not specify
+anything and ggcyto will plot all three graphs.
 
 ```{r, fig.height = 4.5}
-quadgates <- gs_get_pop_paths(gs)[stringr::str_detect(gs_get_pop_paths(gs),
-                                                      "CD33")]
-
-ggcyto(gs, aes("CD33", "CD15")) +
-  geom_hex(bins = 64) +
-  geom_gate(quadgates) +
+ggcyto(gs, aes("FSC-H", "SSC-H")) +
+  geom_hex() +
+  geom_gate("Leukocytes") +
   geom_stats()
 ```
 
@@ -905,9 +838,9 @@ Trying to set the "color" of your gate will result in hours of fruitless
 debugging.
 
 ```{r fig.height = 4.5}
-ggcyto(gs, aes("CD33", "CD15")) +
+ggcyto(gs, aes("FSC-H", "SSC-H")) +
   geom_hex(bins = 128) +
-  geom_gate(quadgates, colour = "grey3", alpha = 0.2) +
+  geom_gate("Leukocytes", colour = "grey3", alpha = 0.2) +
   geom_stats(digits = 1)
 ```
 
@@ -921,9 +854,9 @@ that's an advanced topic that you should look into the first time you run into a
 theme problem you can't fix with a pre-loaded one.
 
 ```{r fig.height = 4.5}
-ggcyto(gs, aes("CD33", "CD15")) +
+ggcyto(gs, aes("FSC-H", "SSC-H")) +
   geom_hex(bins = 128) +
-  geom_gate(quadgates, colour = "grey3", alpha = 0.2) +
+  geom_gate("Leukocytes", colour = "grey3", alpha = 0.2) +
   geom_stats(digits = 1) +
   theme_minimal()
 ```
