@@ -2,6 +2,7 @@
 
 export(gs_apply_gating_strategy)
 export(gs_gate_interactive)
+export(gs_gate_transform_interactive)
 import(BiocManager)
 import(flowWorkspace)
 import(ggcyto)
