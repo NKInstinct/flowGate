@@ -47,7 +47,7 @@
 #' @import BiocManager
 #' @importFrom ggplot2 aes_ aes geom_density scale_x_continuous
 #' @importFrom ggplot2 scale_y_continuous geom_path geom_hex
-#' @importFrom ggplot2 theme element_blank coord_cartesian
+#' @importFrom ggplot2 theme element_blank coord_cartesian geom_vline
 #' @importFrom rlang .data
 #' @importFrom shiny reactive
 #' 
@@ -61,7 +61,7 @@ gs_gate_transform_interactive <- function(
             gs, sample, dims, node, input$transBins, input$transUseCoords, 
             c(input$transXMin, input$transXMax, input$transYMin, 
               input$transYMax), input$transUseBiex, overlayGates, 
-            input$transScaleToggle, input$transScaleX, input$transScaleY, 
+            input$transScaleToggle, c(input$transScaleX, input$transScaleY), 
             input$transRotate, input$transShiftX, input$transShiftY))
         
         output$transPlot <- shiny::renderPlot(TPlot(), height = function() {
@@ -89,22 +89,24 @@ updateGate <- function(gs, node, scaleDims, scale, deg, dx, dy){
     gate <- flowWorkspace::gh_pop_get_gate(gs[[1]], node)
     if(is(gate, "rectangleGate")){
         deg <- NULL
+        if(length(purrr::pluck(gate, "parameters")) == 1){
+            dy <- NULL
+        }
     }
     if(scaleDims == 1){
-        flowCore::transform_gate(gs, y = node, scale = scale[[1]], deg = deg, 
-                                 dx = dx, dy = dy)
-    }else if(scaleDims == 2){
-        flowCore::transform_gate(gs, y = node, scale = scale, deg = deg, 
-                                 dx = dx, dy = dy)
+        scale <- scale[[1]]
     }
+    
+    flowCore::transform_gate(gs, y = node, scale = scale, deg = deg, dx = dx, 
+                             dy = dy)
     
     flowWorkspace::recompute(gs)
 }
 
 
 prepareTransPlot <- function(gs, sample, dims, node, bins, useCoords, coords, 
-                             useBiex, overlayGates, scaleMode, scaleX, scaleY, 
-                             rotate, shiftX, shiftY){
+                             useBiex, overlayGates, scaleMode, scale, 
+                             deg, dx, dy){
     
     sample.gs <- gs[[sample]]
     
@@ -115,26 +117,17 @@ prepareTransPlot <- function(gs, sample, dims, node, bins, useCoords, coords,
     gate <- flowWorkspace::gh_pop_get_gate(sample.gs, node)
     
     if(is(gate, "rectangleGate")){
-        if(scaleMode == "uniform"){
-            newGate <- flowWorkspace::gh_pop_get_gate(sample.gs, node) |>
-                flowCore::transform_gate(scale = scaleX, dx = shiftX, 
-                                         dy = shiftY)
-        }else if(scaleMode == "individual"){
-            newGate <- flowWorkspace::gh_pop_get_gate(sample.gs, node) |>
-                flowCore::transform_gate(scale = c(scaleX, scaleY),
-                                         dx = shiftX, dy = shiftY)
-        }
-    }else{
-        if(scaleMode == "uniform"){
-            newGate <- flowWorkspace::gh_pop_get_gate(sample.gs, node) |>
-                flowCore::transform_gate(scale = scaleX, deg = rotate, dx = shiftX,
-                                         dy = shiftY)
-        }else if(scaleMode == "individual"){
-            newGate <- flowWorkspace::gh_pop_get_gate(sample.gs, node) |>
-                flowCore::transform_gate(scale = c(scaleX, scaleY), deg = rotate,
-                                         dx = shiftX, dy = shiftY)
+        deg <- NULL
+        if(length(purrr::pluck(gate, "parameters")) == 1){
+            dy <- NULL
         }
     }
+    if(scaleMode == "uniform"){
+        scale <- scale[[1]]
+    }
+    
+    newGate <- flowCore::transform_gate(gate, scale = scale, deg = deg, dx = dx, 
+                             dy = dy)
     
     if(is(newGate, "rectangleGate")){
         newGate <- ggcyto:::fortify.rectangleGate(newGate)
@@ -142,7 +135,13 @@ prepareTransPlot <- function(gs, sample, dims, node, bins, useCoords, coords,
         newGate <- ggcyto:::fortify.polygonGate(newGate)
     }
     
-    gg <- gg + geom_path(data = newGate, colour = "firebrick")
+    if(length(purrr::pluck(gate, "parameters")) == 1 & is(gate, "rectangleGate")){
+        gg <- gg +
+            geom_vline(xintercept = min(newGate[[1]]), colour = "firebrick") +
+            geom_vline(xintercept = max(newGate[[1]]), colour = "firebrick")
+    }else{
+        gg <- gg + geom_path(data = newGate, colour = "firebrick")
+    }
     
     gg <- ggcyto::as.ggplot(gg)
     
