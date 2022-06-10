@@ -3,7 +3,7 @@ sliderInput_MaxVal <- function(id, tag){
 }
 
 sliderInput_Width <- function(id, tag){
-    shiny::sliderInput(id, tag, min = -1000, max = -1, value = -100)
+    shiny::sliderInput(id, tag, min = -1000, max = -1, value = -10)
 }
 
 sliderInput_Neg <- function(id, tag){
