@@ -114,8 +114,8 @@ gs_gate_interactive <- function(
             "x" = numeric(), "y" = numeric()))
         # Coords Handling ------------------------------------------------------
         if(input$useCoords){
-            workingCoords <- list("xlim" = c(input$XMin, input$XMax),
-                           "ylim" = c(input$YMin, input$YMax))
+            workingCoords <- reactive(list("xlim" = c(input$XMin, input$XMax),
+                           "ylim" = c(input$YMin, input$YMax)))
         }else{
             workingCoords <- coords
         }
