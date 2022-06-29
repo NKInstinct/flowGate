@@ -104,21 +104,14 @@
 #'
 #' @export
 gs_gate_interactive <- function(
-    gs, filterId, sample = 1, dims = list("FSC-A", "SSC-A"), subset = "root",
-    coords = NULL, regate = FALSE, overlayGates = NULL){
+    gs, filterId, sample = 1, dims = list("FSC-A", "SSC-A"), subset = "root", 
+    regate = FALSE, overlayGates = NULL){
     # Delete gate if regating ==================================================
     if(regate == TRUE){gs_pop_remove(gs, filterId)}
     # Server Function ==========================================================
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(gateCoords = data.frame(
             "x" = numeric(), "y" = numeric()))
-        # Coords Handling ------------------------------------------------------
-        if(input$useCoords){
-            workingCoords <- reactive(list("xlim" = c(input$XMin, input$XMax),
-                           "ylim" = c(input$YMin, input$YMax)))
-        }else{
-            workingCoords <- coords
-        }
         # Biex Handling --------------------------------------------------------
         shiny::observeEvent(input$useBiex, {
             if(input$useBiex){
@@ -134,7 +127,8 @@ gs_gate_interactive <- function(
             widthBasis = input$yWidth, inverse = TRUE))
         # Prepare main panel plot ----------------------------------------------
         FPlot <- reactive(preparePlot(
-            gs, sample, dims, subset, input$bins, workingCoords, overlayGates, 
+            gs, sample, dims, subset, input$bins, input$useCoords, 
+            c(input$XMin, input$XMax, input$YMin, input$YMax), overlayGates, 
             input$gateType, vals$gateCoords, input$useBiex, input$xMaxVal, 
             input$xWidth, input$xPos, input$xNeg, input$yMaxVal, input$yWidth,
             input$yPos, input$yNeg))

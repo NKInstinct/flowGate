@@ -20,7 +20,7 @@
 #' @return A ggplot object ready to pass into the shiny app.
 #' @noRd
 #'
-preparePlot <- function(gs, sample, dims, subset, bins, coords, overlayGates,
+preparePlot <- function(gs, sample, dims, subset, bins, useCoords, coords, overlayGates,
                         addGateType, addCoords, useBiex, x_max, x_wide, x_pos,
                         x_neg, y_max, y_wide, y_pos, y_neg){
     sample.gs <- gs[[sample]]
@@ -32,16 +32,17 @@ preparePlot <- function(gs, sample, dims, subset, bins, coords, overlayGates,
         gg <- ggcyto::ggcyto(sample.gs, aes(!!dims[[1]]), subset = subset) +
             geom_density() + scale_x_continuous(expand = c(0,0)) +
             scale_y_continuous(expand = c(0,0)) + theme_flowGate
-        if(!is.null(coords)){
-            gg <- gg + coord_cartesian(xlim = coords[[1]])
+        if(useCoords){
+            gg <- gg + coord_cartesian(xlim = c(coords[[1]], coords[[2]]))
         }
     } else {
         gg <- ggcyto::ggcyto(
             sample.gs, aes(!!dims[[1]], !!dims[[2]]), subset = subset) +
                 geom_hex(bins = bins) + scale_x_continuous(expand = c(0,0)) +
                 scale_y_continuous(expand = c(0,0)) + theme_flowGate
-        if(!is.null(coords)){
-            gg <- gg + coord_cartesian(xlim = coords[[1]], ylim = coords[[2]])
+        if(useCoords){
+            gg <- gg + coord_cartesian(xlim = c(coords[[1]], coords[[2]]),
+                                       ylim = c(coords[[3]], coords[[4]]))
         }
     }
     if(!is.null(overlayGates)){
