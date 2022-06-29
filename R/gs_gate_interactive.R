@@ -112,6 +112,13 @@ gs_gate_interactive <- function(
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(gateCoords = data.frame(
             "x" = numeric(), "y" = numeric()))
+        # Coords Handling ------------------------------------------------------
+        if(input$useCoords){
+            workingCoords <- list("xlim" = c(input$XMin, input$XMax),
+                           "ylim" = c(input$YMin, input$YMax))
+        }else{
+            workingCoords <- coords
+        }
         # Biex Handling --------------------------------------------------------
         shiny::observeEvent(input$useBiex, {
             if(input$useBiex){
@@ -127,7 +134,7 @@ gs_gate_interactive <- function(
             widthBasis = input$yWidth, inverse = TRUE))
         # Prepare main panel plot ----------------------------------------------
         FPlot <- reactive(preparePlot(
-            gs, sample, dims, subset, input$bins, coords, overlayGates, 
+            gs, sample, dims, subset, input$bins, workingCoords, overlayGates, 
             input$gateType, vals$gateCoords, input$useBiex, input$xMaxVal, 
             input$xWidth, input$xPos, input$xNeg, input$yMaxVal, input$yWidth,
             input$yPos, input$yNeg))
