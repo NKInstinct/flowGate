@@ -1,7 +1,6 @@
 ---
 title: "flowGate"
 subtitle: "Enabling conventional cytometry analysis in R"
-author: "Andrew Wight, Harvey Cantor"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{flowGate}
@@ -134,7 +133,7 @@ The `system.file()` command above is needed to get at the .FCS files that have
 shipped with flowGate. However, when you are ready to read your own flow data
 into R, you can provide a simple path to the directory you are interested in.
 For example, if your target directory is something called "Flow Data" in your
-current working directory, you could simply pass `path_to_fcs <- "~/Flow Data/"`
+current directory, you could simply pass `path_to_fcs <- "./Flow Data/"`
 and that would do the same thing.
 
 ```{r}
@@ -331,6 +330,21 @@ to your flow data directly when gating, rather than at this import step, meaning
 you can set the biex parameters yourself while looking at the data. Note that in
 this way, the data are transformed at the _plotting_ level rather than the data
 level. We'll talk a little more about that later.
+
+__However:__ if you have very large flow files, you might notice some odd
+behaviour when trying to draw polygon gates in particular, where your data seems
+to move around the plot. The gate that you're drawing will move with them, so
+you can kind of "roll with it" if you like, but if you find this unworkable, you
+should apply your transformations first before trying to draw gates on your
+data. Because flowGate is written to allow on-the-fly changes to almost all
+aspects of your plot, R has to re-calculate the transformation every time you
+change anything else in the plot, which can cause this artifact when working
+with large amounts of data.
+
+The flowCore and flowWorkspace vignettes go into great detail about how to apply
+transformations (start with the flowWorkspace one since it's designed for
+GatingSet data), and if you just want a decent transform without any fuss, have
+a look at the `estimateLogicle` function in flowWorkspace.
 
 # Interactive gating
 

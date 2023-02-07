@@ -35,14 +35,12 @@ Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),
     R (>= 4.1)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.0
 Suggests: 
     knitr,
     rmarkdown,
     stringr,
     tidyverse,
-    cowplot,
-    magick,
     testthat
 VignetteBuilder: knitr
 biocViews:
