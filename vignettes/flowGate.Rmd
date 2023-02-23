@@ -941,3 +941,10 @@ Andrew Wight was funded by an AAI Intersect fellowship for cross-training
 immunologists in computational biology & a grant from the Claudia Adams Barr
 foundation. FlowJo is a registered trademark of Beckton, Dickenson, and Company.
 Kaluza is a registered trademark of Beckman Coulter Inc.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
