@@ -51,20 +51,36 @@ researcher who has never used R for flow cytometry analysis at all.
 
 # Setting up flowGate
 
-Because flowGate is in active development and not yet submitted to BioConductor,
-you will need to install it directly from GitHub. Installing packages from
-GitHub is slightly more complex than installing normal R packages, so if you've
-never done it before, here are some steps to follow:
+## Installing from Bioconductor
 
+flowGate is now submitted to the Bioconductor project, so installing it should
+be pretty straightforward. Note that it's still possible to install the unstable
+devel version from github (see instructions below), but for general use, the
+Bioconductor version is the better choice.
 
-1. Install RStudio (https://rstudio.com). flowGate uses the Shiny package to
-make interactive gating possible, which tends to work best from inside the
-RStudio IDE. You don't strictly need to use RStudio to make this work, but this
-vignette is assuming that you are, and if you don't have a reason not to use
-RStudio, I recommend that you do at least while you are working through this
-vignette.
+1. Install RStudio (https://posit.co/download/rstudio-desktop/). flowGate uses
+the Shiny package to make interactive gating possible, which tends to work best
+from inside the RStudio IDE. You don't strictly need to use RStudio to make this
+work, but this vignette is assuming that you are, and if you don't have a reason
+not to use RStudio, I recommend that you do at least while you are working
+through this vignette.
 2. If you are using a Windows operating system, install Rtools
 (https://cran.r-project.org/bin/windows/Rtools/)
+3. From within R, run the following code:
+
+```{r, eval = FALSE}
+if(!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+}
+
+BiocManager::install("flowGate")
+```
+
+## Installing from GitHub
+
+If you'd prefer to install the devel version from GitHub, please complete steps
+1 and 2 above, then proceed here instead:
+
 3. Make sure that you have a GitHub account (http://github.com)
 4. Install BioConductor dependencies (see code below). Once flowGate is
 submitted to BioConductor, this step won't be necessary, but for the meantime,
@@ -103,6 +119,9 @@ if(!requireNamespace("devtools", quietly = TRUE)){
 
 devtools::install_github("NKInstinct/flowGate")
 ```
+
+Again, if you aren't sure which version to use, please go with the Bioconductor
+version.
 
 # Preparing your cytometry data
 
@@ -419,7 +438,7 @@ Go ahead and draw a polygon gate on your data.
 
 ![A flowGate window with a polygon drawn on it](Window2drawgate.png)
 
-If you think you've mis-clicked and want to start over, just hit the "Clear"
+If you think you've mis-clicked and want to start over, just hit the "Reset"
 button on the top left and then start drawing your polygon again. Once you are
 happy with it, click "Done" to close the window and apply the gate to your whole
 GatingSet.
@@ -523,9 +542,9 @@ peaks.
 
 As before, when you are happy with the gate, click Done to close the window and
 apply the gate. Unlike with polygon and quadrant gates, you don't need to click
-Clear if you want to adjust the rectangle on your graph---you can just adjust or
+Reset if you want to adjust the rectangle on your graph---you can just adjust or
 redraw it as many times as you like (note: nothing bad will happen if you click
-Clear when drawing rectangles, so don't worry if you do).
+Reset when drawing rectangles, so don't worry if you do).
 
 Now, as before, we can have a peek at the gate. This time, however, we're going
 to use the more expanded ggcyto command to start to get familiar with it. ggcyto
@@ -566,7 +585,7 @@ The last gate to add to this plot is a quadrant gate on CD33 and CD15. As
 before, we'll call `gs_gate_interactive()` with the appropriate arguments, then
 switch our gating mode to quadrant, and then click exactly once, where you want
 the center of the quadrant gate to be. As with the polygon gate, if you
-mis-click, you can click on Clear to reset your selection and then try again.
+mis-click, you can click on Reset to reset your selection and then try again.
 
 ```{r eval = FALSE}
 gs_gate_interactive(gs[[1]],

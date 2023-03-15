@@ -26,3 +26,23 @@ appreciated. In particular, we hope that the accompanying vignette can
 act as a clear and concise guide to beginning with flow cytometry analysis 
 in R in general, so suggestions on where to clarify or correct the
 vignette are always welcome.
+
+## Installation Instructions
+
+flowGate can be installed from Bioconductor by running
+`BiocManager::install("flowGate")`. Please see the vignette for a more detailed
+set of steps to install flowGate if you are new to Bioconductor package
+installation. The devel version can also be installed with
+`devtools::install_github("NKInstinct/flowGate")`
+
+## Contributions
+
+Contributions to flowGate are always welcome! If there is a bug that needs
+squishing or a feature you'd like to see added, please open an Issue at
+github.com/NKInstinct/flowGate. Additionally, if you'd like to contribute code,
+please fork the repo from github.com/NKInstinct/flowGate and then submit a pull
+request when finished and we'll see about incorporating your changes.
+
+Please note that flowGate is intended to be approachable to cytometerists
+regardless of R coding ability, so contributions and suggestions with an eye to
+making it easier to use or understand are especially welcome!
