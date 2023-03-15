@@ -26,7 +26,7 @@ preparePlot <- function(gs, sample, dims, subset, bins, useCoords, coords, overl
   
     sample.gs <- gs[[sample]]
     
-    gg <- prepMainPlot(sample.gs, dims, subset, bins, coords)
+    gg <- prepMainPlot(sample.gs, dims, subset, bins, useCoords, coords)
     
     if(!is.null(overlayGates)){gg <- gg + geom_gate(overlayGates)}
     
@@ -42,7 +42,7 @@ preparePlot <- function(gs, sample, dims, subset, bins, useCoords, coords, overl
 
 # Helper Functions -------------------------------------------------------------
 
-prepMainPlot <- function(sample.gs, dims, subset, bins, coords){
+prepMainPlot <- function(sample.gs, dims, subset, bins, useCoords, coords){
   if(length(dims) > 2){
     warning("gs_gate_interactive can only handle one or two dims.
                 The first two dims will be used, the others discarded.")
