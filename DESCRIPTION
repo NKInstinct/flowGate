@@ -1,10 +1,10 @@
 Package: flowGate
 Type: Package
 Title: Interactive Cytometry Gating in R
-Version: 0.99.0
+Version: 0.99.2
 Authors@R: c(person("Andrew", 
                     "Wight", 
-                    email = "AndrewE_Wight@dfci.harvard.edu", 
+                    email = "andrew.wight10@gmail.com", 
                     role = c("aut", "cre")),
              person("Harvey",
                     "Cantor",
@@ -34,15 +34,13 @@ Imports:
 Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),
-    R (>= 4.1)
-RoxygenNote: 7.1.1
+    R (>= 4.2)
+RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
     stringr,
     tidyverse,
-    cowplot,
-    magick,
     testthat
 VignetteBuilder: knitr
 biocViews:

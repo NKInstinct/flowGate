@@ -3,7 +3,7 @@ sliderInput_MaxVal <- function(id, tag){
 }
 
 sliderInput_Width <- function(id, tag){
-    shiny::sliderInput(id, tag, min = -1000, max = -1, value = -100)
+    shiny::sliderInput(id, tag, min = -1000, max = -1, value = -10)
 }
 
 sliderInput_Neg <- function(id, tag){
@@ -25,6 +25,11 @@ ui <- shiny::fluidPage(
             "Rectangle" = "rectangleGate", "Polygon" = "polygonGate",
             "Span" = "spanGate", "Quadrant" = "quadGate"),
             selected = "rectangleGate"),
+        shiny::checkboxInput("useCoords", "Enable Manual Coords?"),
+        shiny::numericInput("XMin", "X Minimum", -1000),
+        shiny::numericInput("XMax", "X Maximum", 50000),
+        shiny::numericInput("YMin", "Y Minimum", -1000),
+        shiny::numericInput("YMax", "Y Maximum", 50000),
         shiny::checkboxInput("useBiex", "Use FlowJo Biex?"),
         shiny::tabsetPanel(id = "biexTab", type = "hidden",
                             shiny::tabPanel("blankPanel", " "),

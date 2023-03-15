@@ -23,9 +23,6 @@
 #'   sample from. For example, if you wanted to gate all live cells out of a
 #'   previously drawn "lymphocytes" gate, you would specify "lymphocytes" here.
 #'   Defaults to "root" (ungated).
-#' @param coords A length-2 list of minimum and maximum coordinates that passes
-#'   to coord_cartesian, in the format \code{list(x = c(0, 10), y = c(0, 10))}.
-#'   Defaults to \code{NULL} (data-driven coordinate system).
 #' @param regate A boolean specifying whether all gates with a name matching
 #'   \code{filterId} should first be deleted before being re-drawn. Attempting
 #'   to draw a gate with a non-unique \code{filterId} without specifying
@@ -104,8 +101,8 @@
 #'
 #' @export
 gs_gate_interactive <- function(
-    gs, filterId, sample = 1, dims = list("FSC-A", "SSC-A"), subset = "root",
-    coords = NULL, regate = FALSE, overlayGates = NULL){
+    gs, filterId, sample = 1, dims = list("FSC-A", "SSC-A"), subset = "root", 
+    regate = FALSE, overlayGates = NULL){
     # Delete gate if regating ==================================================
     if(regate == TRUE){gs_pop_remove(gs, filterId)}
     # Server Function ==========================================================
@@ -127,7 +124,8 @@ gs_gate_interactive <- function(
             widthBasis = input$yWidth, inverse = TRUE))
         # Prepare main panel plot ----------------------------------------------
         FPlot <- reactive(preparePlot(
-            gs, sample, dims, subset, input$bins, coords, overlayGates, 
+            gs, sample, dims, subset, input$bins, input$useCoords, 
+            c(input$XMin, input$XMax, input$YMin, input$YMax), overlayGates, 
             input$gateType, vals$gateCoords, input$useBiex, input$xMaxVal, 
             input$xWidth, input$xPos, input$xNeg, input$yMaxVal, input$yWidth,
             input$yPos, input$yNeg))
