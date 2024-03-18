@@ -76,4 +76,5 @@ preparePlot <- function(gs, sample, dims, subset, bins, useCoords, coords, overl
 
 theme_flowGate <- theme_gray() + theme(
         strip.background = element_blank(),
-        strip.text = element_blank())
+        strip.text = element_blank(),
+        legend.text = ggplot2::element_text(hjust = 0.5))
