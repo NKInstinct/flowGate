@@ -1,7 +1,7 @@
 Package: flowGate
 Type: Package
 Title: Interactive Cytometry Gating in R
-Version: 1.8.0
+Version: 1.9.0
 Authors@R: c(person("Andrew", 
                     "Wight", 
                     email = "andrew.wight10@gmail.com", 
