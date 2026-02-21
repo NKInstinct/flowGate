@@ -46,6 +46,7 @@ Suggests:
     stringr,
     tidyverse,
     testthat
+    vdiffr
 VignetteBuilder: knitr
 biocViews:
     Software,
