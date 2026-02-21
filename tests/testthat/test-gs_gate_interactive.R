@@ -58,16 +58,16 @@ FPlot <- preparePlot(gs, sample, dims, subset, input$bins, input$useCoords,
 expect_true(inherits(FPlot, "ggplot"))
 vdiffr::expect_doppelganger("Shiny_Biexp", FPlot)
   
-#gs_gate_interactive(gs,filterId = "Lymphocytes4", dims = list("FSC-H", "SSC-H"), regate=FALSE)
+#gs_gate_interactive(gs,filterId = "Lymphocytes6", dims = list("FSC-H", "SSC-H"), regate=FALSE)
 
-filterID <- "Test"
-GateType <- "spanGate"
-Coords <- list(X=c(250, 500))
+#filterId <- "Test2"
+#GateType <- "spanGate"
+#coords <- list(X=c(250, 500))
   
   
-applyGateClose(gs, subset, Coords, GateType, filterID, FPlot, 
-                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
-                input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
-                input$yNeg)
+#applyGateClose(gs, subset, coords, GateType, filterId, FPlot, 
+#                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
+#                input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
+#               input$yNeg)
 
 })
