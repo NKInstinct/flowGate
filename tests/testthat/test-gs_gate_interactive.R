@@ -1,4 +1,6 @@
-test_that("gs_gate_interactive is functional", {
+test_that("gs_gate_interactive adds gates to the GatingSet", {
+
+# Base Plot
 
 sample <- 1
 dims <- list("FSC-H", "SSC-H")
@@ -57,17 +59,81 @@ FPlot <- preparePlot(gs, sample, dims, subset, input$bins, input$useCoords,
 
 expect_true(inherits(FPlot, "ggplot"))
 vdiffr::expect_doppelganger("Shiny_Biexp", FPlot)
-  
-#gs_gate_interactive(gs,filterId = "Lymphocytes6", dims = list("FSC-H", "SSC-H"), regate=FALSE)
 
-#filterId <- "Test2"
-#GateType <- "spanGate"
-#coords <- list(X=c(250, 500))
+# span Plot
   
+filterId <- "Test2"
+GateType <- "spanGate"
+coords <- list(X=c(250, 500))
+applyGateClose(gs, subset, coords, GateType, filterId, FPlot, 
+                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
+               input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
+              input$yNeg)
   
-#applyGateClose(gs, subset, coords, GateType, filterId, FPlot, 
-#                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
-#                input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
-#               input$yNeg)
+spanPlot <- ggcyto(gs[[1]], subset="root", aes(x = "FSC-H", y = "SSC-H"))  + 
+  geom_hex(bins=100) + geom_gate("Test2")
+  
+expect_true("Test2" %in% gs_get_pop_paths(gs, path=1))
+  
+vdiffr::expect_doppelganger("spanPlot", spanPlot)
+ 
+# polygon Plot  
+  
+filterId <- "Test3"
+GateType <- "polygonGate"
+coords <- data.frame(X=c(50, 100, 150, 200), Y=c(100, 150, 150, 100))
+applyGateClose(gs, subset, coords, GateType, filterId, FPlot, 
+                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
+               input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
+              input$yNeg)
+  
+polygonPlot <- ggcyto(gs[[1]], subset="root", aes(x = "FSC-H", y = "SSC-H"))  + 
+  geom_hex(bins=100) + geom_gate("Test3")
+  
+expect_true("Test3" %in% gs_get_pop_paths(gs, path=1))
+  
+vdiffr::expect_doppelganger("polygonPlot", polygonPlot)
+  
+# rectanglePlot  
+  
+filterId <- "Test4"
+GateType <- "rectangleGate"
+coords <- list(X=c(250, 500), Y=c(250, 500))
+applyGateClose(gs, subset, coords, GateType, filterId, FPlot, 
+                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
+               input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
+              input$yNeg)
 
+rectanglePlot <- ggcyto(gs[[1]], subset="root", aes(x = "FSC-H", y = "SSC-H"))  + 
+  geom_hex(bins=100) + geom_gate("Test4")
+  
+expect_true("Test4" %in% gs_get_pop_paths(gs, path=1))
+  
+vdiffr::expect_doppelganger("rectanglePlot", rectanglePlot)
+  
+# Quadrant Plot 
+  
+dims <- list("FL1-H", "FL2-H")
+  
+FPlot <- preparePlot(gs, sample, dims, subset, input$bins, input$useCoords, 
+            c(input$XMin, input$XMax, input$YMin, input$YMax), overlayGates, 
+            input$gateType, vals$gateCoords, input$useBiex, input$xMaxVal, 
+            input$xWidth, input$xPos, input$xNeg, input$yMaxVal, input$yWidth,
+            input$yPos, input$yNeg) 
+  
+filterId <- "Test1"
+GateType <- "quadGate"
+coords <- list(X=c(5000), Y=c(5000))
+applyGateClose(gs, subset, coords, GateType, filterId, FPlot, 
+                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
+               input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
+              input$yNeg)
+  
+quadPlot <- ggcyto(gs[[1]], subset="root", aes(x = "FL1-H", y = "FL2-H"))  + 
+  geom_hex(bins=100) + geom_gate("CD15 FITC-CD45 PE+")
+  
+expect_true("CD15 FITC-CD45 PE+" %in% gs_get_pop_paths(gs, path=1))
+  
+vdiffr::expect_doppelganger("quadPlot", rectanglePlot)
+  
 })
