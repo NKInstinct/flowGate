@@ -76,6 +76,9 @@ preparePlot <- function(gs, sample, dims, subset, bins, useCoords, coords, overl
                 maxValue = y_max, widthBasis = y_wide, pos = y_pos, neg = y_neg)
         })
     }
+
+    if ("ggcyto_GatingSet" %in% class(gg)){class(gg) <- class(gg)[class(gg) != "ggcyto_GatingSet"]}
+
     gg <- ggcyto::as.ggplot(gg)
     return(gg)
 }

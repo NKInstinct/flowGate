@@ -11,5 +11,7 @@ gs <- GatingSet(fs)
 ggcytoVersion <- packageVersion("ggcyto")
 ggplot2Version <- packageVersion("ggplot2")
 
+sample <- 1
+sample.gs <- gs[[sample]]
 
 
