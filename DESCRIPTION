@@ -45,7 +45,7 @@ Suggests:
     rmarkdown,
     stringr,
     tidyverse,
-    testthat
+    testthat,
     vdiffr
 VignetteBuilder: knitr
 biocViews:
