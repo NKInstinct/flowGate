@@ -38,7 +38,7 @@ Imports:
 Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),
-    R (>= 4.5)
+    R (>= 4.4)
 RoxygenNote: 7.3.3
 Suggests: 
     knitr,
