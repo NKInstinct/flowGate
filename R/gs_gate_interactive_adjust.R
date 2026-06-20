@@ -109,10 +109,8 @@ gs_gate_interactive_adjust <- function(gs, gate, sample, overlayGates = NULL){
     filterId <- gate
     dims <- sapply(AllGates@parameters, function(x) x@parameters) |> unname()
     subset <- gs_pop_get_parent(gs[sample], gate)[[1]]
-  
-    if (!is.null(overlayGates)){
-      #overlayGates <- AllGates@boundaries
-    }
+    #overlayGates <- polygonGate(filterId = AllGates@filterId, .gate = AllGates@boundaries)
+    overlayGates <- AllGates
   
   
     # if(regate == TRUE){gs_pop_remove(gs, filterId)}
@@ -155,19 +153,17 @@ gs_gate_interactive_adjust <- function(gs, gate, sample, overlayGates = NULL){
             vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())})
         # Apply gate and close -------------------------------------------------
         shiny::observeEvent(input$done, {
-            output <- list(
-                gs, subset, vals$gateCoords, input$gateType, filterId, FPlot(), 
-                input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
-                input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
-                input$yNeg, sample)
-            #print(output)
-            output <- applyGateCloseSwap(
+        if (nrow(vals$gateCoords) == 0) {
+            shiny::stopApp(overlayGates)
+        } else {   output <- applyGateCloseSwap(
                 gs, subset, vals$gateCoords, input$gateType, filterId, FPlot(), 
                 input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
                 input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
                 input$yNeg, sample)
           shiny::stopApp(output)
+        }
         })
+
         }
     shiny::runApp(shiny::shinyApp(ui, server))
 }
