@@ -153,9 +153,10 @@ gs_gate_interactive_adjust <- function(gs, gate, sample, overlayGates = NULL){
             vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())})
         # Apply gate and close -------------------------------------------------
         shiny::observeEvent(input$done, {
-        if (nrow(vals$gateCoords) == 0) {
+        if (is.data.frame(vals$gateCoords) && nrow(vals$gateCoords) == 0 && is.null(input$X)) {
             shiny::stopApp(overlayGates)
-        } else {   output <- applyGateCloseSwap(
+        } else { 
+            output <- applyGateCloseSwap(
                 gs, subset, vals$gateCoords, input$gateType, filterId, FPlot(), 
                 input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
                 input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 

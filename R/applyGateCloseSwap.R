@@ -15,6 +15,7 @@
 applyGateCloseSwap <- function(
     gs, subset, coords, gateType, filterId, gg, useBiex, bins, xMax, xWidth, 
     xPos, xNeg, yMax, yWidth, yPos, yNeg, sample){
+    
     if(gateType == "polygonGate"){
         names(coords) <- c(names(gg$data)[[3]], names(gg$data)[[4]])
         coords <- as.matrix(coords)

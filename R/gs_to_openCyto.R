@@ -23,6 +23,8 @@
 gs_to_openCyto <- function(gs, sample=1, outpath=NULL, filename="openCytoTemplate"){
   pops <- gs_get_pop_paths(gs)
   pops <- pops[!str_equal("root", pops)]
+
+  # x <- pops[1]
   CSV <- map(.x=pops, .f=gate_detallitos, gs=gs, sample=sample) |> bind_rows()
 
   if (is.null(outpath)){outpath <- getwd()}
@@ -43,29 +45,55 @@ gs_to_openCyto <- function(gs, sample=1, outpath=NULL, filename="openCytoTemplat
 #' @return A data.frame row
 #' 
 #' @noRd
-#' 
+#'
 gate_detallitos <- function(x, gs, sample){
+
   TheGate <- gs_pop_get_gate(gs[sample], x)[[1]]
-  TheVector <- TheGate@boundaries
-  coords <- paste(c(TheVector[,1], TheVector[,2]), collapse = ",")
-  TheMethod <- "polygon_gate"
-  TheDims <- colnames(TheVector)
-  if(length(TheDims) > 1){TheDims <- paste(TheDims, collapse = ",")}
-  ThefilterId <- TheGate@filterId
-  TheParent <- gs_pop_get_parent(gs[sample], x)
-  
-Data <- data.frame(
-  alias=ThefilterId,
-  pop="+",
-  parent=TheParent,
-  dims=TheDims,
-  gating_method=TheMethod,
-  gating_args= sprintf('matrix(c(%s),ncol=2)', coords),
-  collapseDataForGating="FALSE",
-  groupBy="NA",
-  preprocessing_method="NA",
-  preprocessing_args="NA"
-)
+
+  if (is(TheGate, "rectangleGate")){
+
+    # span_gate
+    TheMin <- TheGate@min
+    TheMax <- TheGate@max
+    TheDims <- names(TheGate@min)
+    TheMethod <- "span_gate"
+    coords <- paste(c(TheMin, TheMax), collapse = ",")
+
+    Data <- data.frame(
+      alias       = TheGate@filterId,
+      pop         = "+",
+      parent      = gs_pop_get_parent(gs[sample], x),
+      dims        = TheDims,
+      gating_method = TheMethod,
+      gating_args = sprintf('min=c(%s),max=c(%s)', TheMin, TheMax),
+      collapseDataForGating = "FALSE",
+      groupBy     = "NA",
+      preprocessing_method = "NA",
+      preprocessing_args   = "NA"
+    )
+
+  } else if (is(TheGate, "polygonGate")){
+
+    # polygon_gate
+    TheVector <- TheGate@boundaries
+    TheDims <- colnames(TheVector)
+    if(length(TheDims) > 1){TheDims <- paste(TheDims, collapse = ",")}
+    coords <- paste(c(TheVector[,1], TheVector[,2]), collapse = ",")
+
+    Data <- data.frame(
+      alias       = TheGate@filterId,
+      pop         = "+",
+      parent      = gs_pop_get_parent(gs[sample], x),
+      dims        = TheDims,
+      gating_method = "polygon_gate",
+      gating_args = sprintf('matrix(c(%s),ncol=2)', coords),
+      collapseDataForGating = "FALSE",
+      groupBy     = "NA",
+      preprocessing_method = "NA",
+      preprocessing_args   = "NA"
+    )
+  }
+
   return(Data)
 }
 
@@ -79,14 +107,22 @@ Data <- data.frame(
   flowCore::polygonGate(.gate = boundaries)
 }
 
-#' Ensures polygon_gate is available to openCyto
-#' 
+#' Defines span_gate for openCyto
+#'
+#' @importFrom flowCore rectangleGate
+#'
+#' @noRd
+.my_span <- function(fr, pp_res, channels, min, max, ...) {
+  gate_range <- matrix(c(min, max), nrow = 2, dimnames = list(c("min", "max"), channels))
+  flowCore::rectangleGate(.gate = gate_range)
+}
+
+#' Ensures span_gate and polygon_gate are available to openCyto
+#'
 #' @importFrom openCyto register_plugins
-#' 
+#'
 #' @noRd
 .onLoad <- function(libname, pkgname) {
-  openCyto::register_plugins(
-    fun = .my_polygon,
-    methodName = "polygon_gate"
-  )
+  openCyto::register_plugins(fun = .my_polygon, methodName = "polygon_gate")
+  openCyto::register_plugins(fun = .my_span,    methodName = "span_gate")
 }
