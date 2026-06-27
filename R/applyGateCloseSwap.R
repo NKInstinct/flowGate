@@ -16,18 +16,22 @@ applyGateCloseSwap <- function(
     gs, subset, coords, gateType, filterId, gg, useBiex, bins, xMax, xWidth, 
     xPos, xNeg, yMax, yWidth, yPos, yNeg, sample){
     
+    TheNames <- names(gg$data)
+    LastTwo  <- tail(TheNames, 2)
+    FinalOne  <- tail(TheNames, 1)
+
     if(gateType == "polygonGate"){
-        names(coords) <- c(names(gg$data)[[3]], names(gg$data)[[4]])
+        names(coords) <- LastTwo
         coords <- as.matrix(coords)
         gate <- flowCore::polygonGate(coords, filterId = filterId)
     } else if(gateType == "spanGate"){
-        names(coords) <- c(names(gg$data))[[3]]
+        names(coords) <- FinalOne
         gate <- flowCore::rectangleGate(coords, filterId = filterId)
     } else if(gateType == "quadGate"){
-        names(coords) <- c(names(gg$data)[[3]], names(gg$data)[[4]])
+        names(coords) <- LastTwo
         gate <- flowCore::quadGate(coords, filterId = filterId)
     } else if(gateType == "rectangleGate"){
-        names(coords) <- c(names(gg$data)[[3]], names(gg$data)[[4]])
+        names(coords) <- LastTwo
         gate <- flowCore::rectangleGate(coords, filterId = filterId)
     }
 
