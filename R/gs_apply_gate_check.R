@@ -9,6 +9,7 @@
 #' @param gate A tibble-formatted gating strategy (see examples below)
 #' @param sample Sample index in the GatingSet, default NULL will iterate through
 #' all specimens in the GatingSet.
+#' @param AdjustAll Default FALSE, applies the gate correction to the entire gating set. 
 #' @param ... Other parameters to pass to gs_gate_interactive(). Note that only
 #'   constant parameters should be supplied here---anything that varies should
 #'   be included in the gating_strategy tibble.
@@ -45,7 +46,7 @@
 #' }
 #' @export
 #' 
-gs_apply_gate_check <- function(gs, gate, sample=NULL, ...){
+gs_apply_gate_check <- function(gs, gate, sample=NULL, AdjustAll=FALSE, ...){
     if(methods::is(gs, "GatingSet")){
 
       if(is.null(sample)){
@@ -59,6 +60,7 @@ gs_apply_gate_check <- function(gs, gate, sample=NULL, ...){
           gs       = gs,
           gate = gate,
           sample   = sample,
+          AdjustAll = AdjustAll,
           ...
         )
       }

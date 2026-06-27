@@ -4,7 +4,13 @@
 \alias{gs_gate_interactive_adjust}
 \title{Interactive Manual Gating}
 \usage{
-gs_gate_interactive_adjust(gs, gate, sample, overlayGates = NULL)
+gs_gate_interactive_adjust(
+  gs,
+  gate,
+  sample,
+  AdjustAll = FALSE,
+  overlayGates = NULL
+)
 }
 \arguments{
 \item{gs}{The GateSet that will be gated on.}
@@ -14,6 +20,8 @@ which FCS file/flow sample) that make up the GateSet do you want to use to
 draw the gate? Note that the gate you draw will be applied to all
 GatingHierarchy objects in the GateSet. Defaults to the first
 GatingHierarchy object in the GateSet.}
+
+\item{AdjustAll}{Default FALSE, applies the gate correction to the entire gating set.}
 
 \item{overlayGates}{List of strings giving the \code{filterId}s of other
 gates to draw on the example plot when gating. Useful for drawing multiple

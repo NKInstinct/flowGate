@@ -6,7 +6,7 @@
 individual specimen via the Shiny app, quickly iterating through every
 specimen present in the GatingSet.}
 \usage{
-gs_apply_gate_check(gs, gate, sample = NULL, ...)
+gs_apply_gate_check(gs, gate, sample = NULL, AdjustAll = FALSE, ...)
 }
 \arguments{
 \item{gs}{A GatingSet or list of GatingSets.}
@@ -15,6 +15,8 @@ gs_apply_gate_check(gs, gate, sample = NULL, ...)
 
 \item{sample}{Sample index in the GatingSet, default NULL will iterate through
 all specimens in the GatingSet.}
+
+\item{AdjustAll}{Default FALSE, applies the gate correction to the entire gating set.}
 
 \item{...}{Other parameters to pass to gs_gate_interactive(). Note that only
 constant parameters should be supplied here---anything that varies should

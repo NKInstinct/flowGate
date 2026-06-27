@@ -32,7 +32,8 @@
 #'   gates on the same population (for example, after specifying a marker-low
 #'   population, you can overlay the marker-low gate to aid in drawing a
 #'   marker-high gate). Defaults to \code{NULL} (no overlaid gates).
-#'
+#' @param AdjustAll Default FALSE, applies the gate correction to the entire gating set. 
+#' 
 #' @examples
 #'
 #' path_to_fcs <- system.file("extdata", package = "flowGate")
@@ -101,7 +102,7 @@
 #' renderPlot renderText stopApp runApp shinyApp
 #'
 #' @export
-gs_gate_interactive_adjust <- function(gs, gate, sample, overlayGates = NULL){
+gs_gate_interactive_adjust <- function(gs, gate, sample, AdjustAll=FALSE, overlayGates = NULL){
   
     # Retrieve existing gate information =======================================
     
@@ -160,7 +161,7 @@ gs_gate_interactive_adjust <- function(gs, gate, sample, overlayGates = NULL){
                 gs, subset, vals$gateCoords, input$gateType, filterId, FPlot(), 
                 input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
                 input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
-                input$yNeg, sample)
+                input$yNeg, sample, AdjustAll=AdjustAll)
           shiny::stopApp(output)
         }
         })

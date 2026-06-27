@@ -4,6 +4,7 @@
 #' @param gateType The selected type of gate (from UI).
 #' @param filterId The gate name specified by the user.
 #' @param gg The plot object from vars$plot.
+#' @param AdjustAll Default FALSE, applies the gate correction to the entire gating set. 
 #' 
 #' @importFrom flowCore polygonGate rectangleGate quadGate
 #' @importFrom flowWorkspace gs_pop_add recompute
@@ -14,7 +15,7 @@
 #'
 applyGateCloseSwap <- function(
     gs, subset, coords, gateType, filterId, gg, useBiex, bins, xMax, xWidth, 
-    xPos, xNeg, yMax, yWidth, yPos, yNeg, sample){
+    xPos, xNeg, yMax, yWidth, yPos, yNeg, sample, AdjustAll=FALSE){
     
     TheNames <- names(gg$data)
     LastTwo  <- tail(TheNames, 2)
@@ -37,9 +38,17 @@ applyGateCloseSwap <- function(
 
     # gs_pop_add(gs, gate, parent = subset)
     TheList <- list(gate)
+
+    if (AdjustAll==FALSE){
     names(TheList) <- sampleNames(gs[sample])
     gs_pop_set_gate(gs[sample], filterId, TheList)
     recompute(gs[sample])
+    } else {
+    TheList <- rep(TheList, length(sampleNames(gs)))
+    names(TheList) <- sampleNames(gs)
+    gs_pop_set_gate(gs, filterId, TheList)
+    recompute(gs)
+    }
     
     if(useBiex){
         varsBiex <- list(X = list(
@@ -51,4 +60,4 @@ applyGateCloseSwap <- function(
     }
     output <- list("Gate" = gate, "Bins" = bins, "Scaling" = varsBiex)
     return(output)
-}
+    }
