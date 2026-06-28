@@ -120,6 +120,13 @@ gs_gate_interactive_adjust <- function(gs, gate, sample, AdjustAll=FALSE, overla
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(gateCoords = data.frame(
             "x" = numeric(), "y" = numeric()))
+        
+        if(length(dims) == 1){
+            shiny::observe({
+                updateRadioButtons(session, "gateType", selected = "spanGate")
+            }) |> shiny::bindEvent(session$clientData, once = TRUE)
+        }
+        
         # Biex Handling --------------------------------------------------------
         shiny::observeEvent(input$useBiex, {
             if(input$useBiex){
@@ -166,6 +173,8 @@ gs_gate_interactive_adjust <- function(gs, gate, sample, AdjustAll=FALSE, overla
         }
         })
 
-        }
+    }
     shiny::runApp(shiny::shinyApp(ui, server))
 }
+
+
