@@ -60,6 +60,6 @@ gs_gate_transform_interactive(gs,
                               dims = list("FSC-H", "SSC-H"))
 }
 
-# Opens a window to adjust the gate manually
+#Opens a window to adjust the gate manually
 
 }

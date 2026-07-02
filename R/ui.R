@@ -1,19 +1,46 @@
+#' Internal
+#' 
+#' @importFrom shiny sliderInput
+#' 
+#' @noRd
 sliderInput_MaxVal <- function(id, tag){
     shiny::sliderInput(id, tag, min = -1000, max = 300000, value = 250000)
 }
 
+#' Internal
+#' 
+#' @importFrom shiny sliderInput
+#' 
+#' @noRd
 sliderInput_Width <- function(id, tag){
     shiny::sliderInput(id, tag, min = -1000, max = -1, value = -10)
 }
 
+#' Internal
+#' 
+#' @importFrom shiny sliderInput
+#' 
+#' @noRd
 sliderInput_Neg <- function(id, tag){
     shiny::sliderInput(id, tag, min = 0, max = 1, value = 0)
 }
 
+#' Internal
+#' 
+#' @importFrom shiny sliderInput
+#' 
+#' @noRd
 sliderInput_Pos <- function(id, tag){
     shiny::sliderInput(id, tag, min = 2, max = 7, value = 4, step = 0.1)
 }
 
+#' The Shiny UI
+#' 
+#' @importFrom shiny fluidPage titlePanel sidebarLayout sidebarPanel
+#' @importFrom shiny actionButton sliderInput radioButtons checkboxInput numericInput
+#' @importFrom shiny tabsetPanel tabPanel mainPanel textOutput plotOutput brushOpts
+#' 
+#' @noRd
 ui <- shiny::fluidPage(
     shiny::titlePanel("Draw your gate"),
     shiny::sidebarLayout(

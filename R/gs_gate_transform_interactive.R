@@ -40,16 +40,16 @@
 #'                               dims = list("FSC-H", "SSC-H"))
 #' }
 #' 
-#' # Opens a window to adjust the gate manually
+#' #Opens a window to adjust the gate manually
 #'
-#' @import flowWorkspace
-#' @import ggcyto
-#' @import BiocManager
+#' @importFrom flowWorkspace GatingSet
+#' @importFrom ggcyto ggcyto
+#' @importFrom BiocManager install
 #' @importFrom ggplot2 aes_ aes geom_density scale_x_continuous
 #' @importFrom ggplot2 scale_y_continuous geom_path geom_hex
 #' @importFrom ggplot2 theme element_blank coord_cartesian geom_vline
 #' @importFrom rlang .data
-#' @importFrom shiny reactive
+#' @importFrom shiny reactive renderPlot observeEvent stopApp runApp shinyApp
 #' 
 #' @export
 gs_gate_transform_interactive <- function(
@@ -85,6 +85,13 @@ gs_gate_transform_interactive <- function(
 
 # Helpers ----------------------------------------------------------------------
 
+#' Internal for
+#' 
+#' @importFrom flowCore transform_gate
+#' @importFrom flowWorkspace gh_pop_get_gate recompute
+#' @importFrom purrr pluck
+#' 
+#' @noRd
 updateGate <- function(gs, node, scaleDims, scale, deg, dx, dy){
     gate <- flowWorkspace::gh_pop_get_gate(gs[[1]], node)
     if(is(gate, "rectangleGate")){
@@ -104,6 +111,31 @@ updateGate <- function(gs, node, scaleDims, scale, deg, dx, dy){
 }
 
 
+#' Internal for
+#' 
+#' @param gs TODOLIST
+#' @param sample TODOLIST
+#' @param dims TODOLIST
+#' @param node TODOLIST
+#' @param bins TODOLIST
+#' @param useCoords TODOLIST
+#' @param coords TODOLIST
+#' @param useBiex TODOLIST
+#' @param overlayGates TODOLIST
+#' @param scaleMode TODOLIST
+#' @param scale TODOLIST
+#' @param deg TODOLIST
+#' @param dx TODOLIST
+#' @param dy TODOLIST
+#' 
+#' @importFrom ggcyto geom_gate as.ggplot
+#' @importFrom flowWorkspace gh_pop_get_gate
+#' @importFrom flowCore transform_gate
+#' @importFrom purrr pluck
+#' @importFrom ggplot2 geom_vline geom_path 
+#' @importFrom methods is
+#' 
+#' @noRd
 prepareTransPlot <- function(gs, sample, dims, node, bins, useCoords, coords, 
                              useBiex, overlayGates, scaleMode, scale, 
                              deg, dx, dy){
@@ -148,6 +180,22 @@ prepareTransPlot <- function(gs, sample, dims, node, bins, useCoords, coords,
     return(gg)
 }
 
+#' Internal for
+#' 
+#' @param sample.gs TODOLIST
+#' @param dims TODOLIST
+#' @param node TODOLIST
+#' @param bins TODOLIST
+#' @param useCoords TODOLIST
+#' @param coords TODOLIST
+#' @param useBiex TODOLIST
+#' 
+#' @importFrom ggcyto ggcyto geom_gate scale_x_flowjo_biexp scale_y_flowjo_biexp
+#' @importFrom ggplot2 aes geom_density geom_hex
+#' @importFrom ggplot2 scale_x_continuous scale_y_continuous coord_cartesian
+#' @importFrom rlang !!
+#' 
+#' @noRd
 prepTransPlot <- function(sample.gs, dims, node, bins, useCoords, coords, useBiex){
     if(length(dims) > 2){
         warning("The first two dims will be used, the others discarded.")

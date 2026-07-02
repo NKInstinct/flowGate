@@ -32,7 +32,8 @@
 #'   gates on the same population (for example, after specifying a marker-low
 #'   population, you can overlay the marker-low gate to aid in drawing a
 #'   marker-high gate). Defaults to \code{NULL} (no overlaid gates).
-#'
+#' @param AdjustAll Default FALSE, applies the gate correction to the entire gating set. 
+#' 
 #' @examples
 #'
 #' path_to_fcs <- system.file("extdata", package = "flowGate")
@@ -93,23 +94,39 @@
 #' @importFrom flowWorkspace gs_pop_remove flowjo_biexp
 #' @importFrom ggcyto ggcyto
 #' @importFrom BiocManager install
-#' @importFrom ggplot2 aes_ aes geom_density scale_x_continuous
-#' @importFrom ggplot2 scale_y_continuous geom_path geom_hex
-#' @importFrom ggplot2 theme element_blank coord_cartesian
+#' @importFrom ggplot2 aes_ aes geom_density scale_x_continuous 
+#' scale_y_continuous geom_path geom_hex theme element_blank
+#' coord_cartesian
 #' @importFrom rlang .data
 #' @importFrom shiny reactiveValues observeEvent reactive updateTabsetPanel
-#' @importFrom shiny renderPlot renderText stopApp runApp shinyApp
+#' renderPlot renderText stopApp runApp shinyApp
 #'
 #' @export
-gs_gate_interactive <- function(
-    gs, filterId, sample = 1, dims = list("FSC-A", "SSC-A"), subset = "root", 
-    regate = FALSE, overlayGates = NULL){
-    # Delete gate if regating ==================================================
-    if(regate == TRUE){gs_pop_remove(gs, filterId)}
+gs_gate_interactive_adjust <- function(gs, gate, sample, AdjustAll=FALSE, overlayGates = NULL){
+  
+    # Retrieve existing gate information =======================================
+    
+    AllGates <- gs_pop_get_gate(gs[sample], gate)[[1]]
+    filterId <- gate
+    dims <- sapply(AllGates@parameters, function(x) x@parameters) |> unname()
+    subset <- gs_pop_get_parent(gs[sample], gate)[[1]]
+    #overlayGates <- polygonGate(filterId = AllGates@filterId, .gate = AllGates@boundaries)
+    overlayGates <- AllGates
+  
+  
+    # if(regate == TRUE){gs_pop_remove(gs, filterId)}
+  
     # Server Function ==========================================================
     server <- function(input, output, session) {
         vals <- shiny::reactiveValues(gateCoords = data.frame(
             "x" = numeric(), "y" = numeric()))
+        
+        if(length(dims) == 1){
+            shiny::observe({
+                updateRadioButtons(session, "gateType", selected = "spanGate")
+            }) |> shiny::bindEvent(session$clientData, once = TRUE)
+        }
+        
         # Biex Handling --------------------------------------------------------
         shiny::observeEvent(input$useBiex, {
             if(input$useBiex){
@@ -144,11 +161,20 @@ gs_gate_interactive <- function(
             vals$gateCoords <- data.frame("x" = numeric(), "y" = numeric())})
         # Apply gate and close -------------------------------------------------
         shiny::observeEvent(input$done, {
-            output <- applyGateClose(
+        if (is.data.frame(vals$gateCoords) && nrow(vals$gateCoords) == 0 && is.null(input$X)) {
+            shiny::stopApp(overlayGates)
+        } else { 
+            output <- applyGateCloseSwap(
                 gs, subset, vals$gateCoords, input$gateType, filterId, FPlot(), 
                 input$useBiex, input$bins, input$xMaxVal, input$xWidth, 
                 input$xPos, input$xNeg, input$yMaxVal, input$yWidth, input$yPos, 
-                input$yNeg)
-            shiny::stopApp(output)})}
+                input$yNeg, sample, AdjustAll=AdjustAll)
+          shiny::stopApp(output)
+        }
+        })
+
+    }
     shiny::runApp(shiny::shinyApp(ui, server))
 }
+
+

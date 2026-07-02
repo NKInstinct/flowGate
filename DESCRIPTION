@@ -1,15 +1,17 @@
 Package: flowGate
 Type: Package
 Title: Interactive Cytometry Gating in R
-Version: 1.13.0
+Version: 1.13.1
 Authors@R: c(person("Andrew", 
                     "Wight", 
                     email = "andrew.wight10@gmail.com", 
-                    role = c("aut", "cre")),
+                    role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3116-8722")),
              person("Harvey",
                     "Cantor",
                     email = "Harvey_Cantor@dfci.harvard.edu",
-                    role = c("aut", "ldr")))
+                    role = c("aut", "ldr"),
+           comment = c(ORCID = "0000-0002-3313-2478")))
 Description: flowGate adds an interactive Shiny app to allow manual 
     GUI-based gating of flow cytometry data in R. Using flowGate, 
     you can draw 1D and 2D span/rectangle gates, quadrant gates, 
@@ -19,6 +21,8 @@ Description: flowGate adds an interactive Shiny app to allow manual
     cytometerists looking to take advantage of R for cytometry 
     analysis, without necessarily having a lot of R experience.
 License: MIT + file LICENSE
+URL: https://www.bioconductor.org/packages/release/bioc/html/flowGate.html
+BugReports: https://github.com/NKInstinct/flowGate/issues
 Encoding: UTF-8
 LazyData: false
 Imports:
@@ -30,18 +34,20 @@ Imports:
     rlang (>= 0.4.7),
     purrr,
     tibble,
-    methods
+    methods,
+    openCyto,
+    stringr
 Depends:
     flowWorkspace (>= 4.0.6),
     ggcyto (>= 1.16.0),
-    R (>= 4.2)
-RoxygenNote: 7.2.3
+    R (>= 4.4)
+RoxygenNote: 7.3.3
 Suggests: 
     knitr,
     rmarkdown,
-    stringr,
     tidyverse,
-    testthat
+    testthat,
+    vdiffr
 VignetteBuilder: knitr
 biocViews:
     Software,
@@ -50,3 +56,4 @@ biocViews:
     Preprocessing,
     ImmunoOncology,
     DataImport
+
