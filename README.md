@@ -46,3 +46,4 @@ request when finished and we'll see about incorporating your changes.
 Please note that flowGate is intended to be approachable to cytometerists
 regardless of R coding ability, so contributions and suggestions with an eye to
 making it easier to use or understand are especially welcome!
+
