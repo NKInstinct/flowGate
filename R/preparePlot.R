@@ -16,6 +16,13 @@
 #' @param regate Boolean; should the gs first be stripped of gates matching the
 #'   filterId?
 #' @param overlayGates List of filterIds to plot on top of the current plot.
+#' 
+#' @importFrom ggcyto ggcyto geom_gate scale_x_flowjo_biexp scale_y_flowjo_biexp as.ggplot
+#' @importFrom ggplot2 aes geom_density geom_hex
+#' @importFrom ggplot2 scale_x_continuous scale_y_continuous coord_cartesian
+#' @importFrom ggplot2 geom_path geom_vline geom_hline 
+#' @importFrom rlang !!
+#' @importFrom rlang .data
 #'
 #' @return A ggplot object ready to pass into the shiny app.
 #' @noRd
@@ -69,11 +76,19 @@ preparePlot <- function(gs, sample, dims, subset, bins, useCoords, coords, overl
                 maxValue = y_max, widthBasis = y_wide, pos = y_pos, neg = y_neg)
         })
     }
+
+    if ("ggcyto_GatingSet" %in% class(gg)){class(gg) <- class(gg)[class(gg) != "ggcyto_GatingSet"]}
+
     gg <- ggcyto::as.ggplot(gg)
     return(gg)
 }
 
-
+#' Internal for
+#' 
+#' @importFrom ggplot2 theme_gray theme element_blank element_text
+#' 
+#' @noRd
 theme_flowGate <- theme_gray() + theme(
         strip.background = element_blank(),
-        strip.text = element_blank())
+        strip.text = element_blank(),
+        legend.text = ggplot2::element_text(hjust = 0.5))

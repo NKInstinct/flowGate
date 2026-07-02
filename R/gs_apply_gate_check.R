@@ -1,23 +1,15 @@
-#' Sequentially apply a manual gating strategy to a GatingSet or list
-#'
-#' This function allows for a "semi-automatic" approach to interactive manual
-#' gating of flow cytometry data. It leverages the purrr package to let you
-#' easily define a gating strategy and then apply it sequentially to a
-#' GatingSet. This will call gs_gate_interactive() once for each line in your
-#' gating strategy, applying it to your GatingSet as soon as you draw each
-#' prompted gate.
-#'
-#' The gating strategy should be a tibble, with each column name corresponding
-#' to one parameter from gs_gate_interactive. Any parameters not specified in
-#' this tibble will either use their defaults from gs_gate_interactive or can be
-#' specified directly in the function call to gs_apply_gating_strategy.
-#' Typically, this gating strategy will have a column for 'filterId', 'dims',
-#' 'subset', and 'coords', but techinicaly only filterId is required. See
-#' examples below for an easy way to construct this strategy using tribble().
-#'
+#' The purpose of this function is to allow the readjustment of a gate on an
+#' individual specimen via the Shiny app, quickly iterating through every
+#' specimen present in the GatingSet. 
+#' 
+#' This allows for fine-tuning of the gate placement for non-representative
+#' specimens, or when automated gating methods fail. 
 #'
 #' @param gs A GatingSet or list of GatingSets.
-#' @param gating_strategy A tibble-formatted gating strategy (see examples below)
+#' @param gate A tibble-formatted gating strategy (see examples below)
+#' @param sample Sample index in the GatingSet, default NULL will iterate through
+#' all specimens in the GatingSet.
+#' @param AdjustAll Default FALSE, applies the gate correction to the entire gating set. 
 #' @param ... Other parameters to pass to gs_gate_interactive(). Note that only
 #'   constant parameters should be supplied here---anything that varies should
 #'   be included in the gating_strategy tibble.
@@ -54,10 +46,26 @@
 #' }
 #' @export
 #' 
-gs_apply_gating_strategy <- function(gs, gating_strategy, ...){
+gs_apply_gate_check <- function(gs, gate, sample=NULL, AdjustAll=FALSE, ...){
     if(methods::is(gs, "GatingSet")){
-        purrr::pmap(gating_strategy, 
-                    gs_gate_interactive, gs = gs, ...)
+
+      if(is.null(sample)){
+        Samples <- seq_along(gs)
+      } else {Samples <- sample}
+
+    purrr::walk(
+      .x = Samples,
+      .f = function(sample) {
+        gs_gate_interactive_adjust(
+          gs       = gs,
+          gate = gate,
+          sample   = sample,
+          AdjustAll = AdjustAll,
+          ...
+        )
+      }
+    )
+      
     } else {
         stop("'gs' must be a GatingSet")
     }

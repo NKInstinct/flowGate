@@ -31,6 +31,16 @@ coordBrush <- function(brush, gateType, useBiex, transX, transY){
     return(res)
 }
 
+#' Internal for Unknown
+#' 
+#' @param click TODOLIST
+#' @param gateType TODOLIST
+#' @param useBiex TODOLIST
+#' @param transX TODOLIST
+#' @param transY TODOLIST
+#' 
+#' @noRd
+#' 
 coordClick <- function(click, gateType, useBiex, transX, transY){
     if(useBiex){
         click$x <- transX(click$x)
@@ -44,6 +54,20 @@ coordClick <- function(click, gateType, useBiex, transX, transY){
     return(res)
 }
 
+#' Internal for Unknown
+#' 
+#' @param gateType TODOLIST
+#' @param brush TODOLIST
+#' @param click TODOLIST
+#' @param biex TODOLIST
+#' @param tX TODOLIST
+#' @param tY TOODOLIST
+#' @param append TODOLIST
+#' 
+#' @importFrom dplyr bind_rows
+#' 
+#' @noRd
+#' 
 gateHandler <- function(gateType, brush, click, biex, tX, tY, append){
     switch(gateType,
             rectangleGate = ,

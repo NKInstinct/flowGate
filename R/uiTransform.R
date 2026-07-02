@@ -1,3 +1,10 @@
+#' Shiny UI for ...
+#' 
+#' @importFrom shiny fluidPage titlePanel sidebarLayout sidebarPanel
+#' @importFrom shiny actionButton radioButtons numericInput sliderInput checkboxInput
+#' @importFrom shiny mainPanel plotOutput
+#' 
+#' @noRd
 uiTransform <- shiny::fluidPage(
     shiny::titlePanel("Update a Gate"),
     shiny::sidebarLayout(
